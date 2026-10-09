@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>শিবম সমিতি — Collection Manager</title>
+<style>
+:root{--p:#6d28d9;--p2:#4f46e5;--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#64748b;--ok:#059669;--warn:#d97706;--bad:#dc2626;--line:#e2e8f0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans Bengali","Segoe UI",Arial,sans-serif;font-size:18px}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{max-width:1500px;margin:auto}
+header{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:18px 20px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #0002}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:26px;font-weight:800}.sub{font-size:14px;opacity:.9}
+nav{display:flex;gap:8px;overflow:auto;padding-top:14px}nav button{background:#ffffff20;color:white;padding:10px 14px;border-radius:12px;white-space:nowrap}
+nav button.active,nav button:hover{background:#fff;color:var(--p)}
+main{padding:18px}.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 3px 14px #0f172a08}
+.metric .label{color:var(--muted);font-size:15px}.metric .value{font-size:29px;font-weight:800;margin-top:6px}.metric small{color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}
+.section-title{font-size:23px;font-weight:800;margin:20px 0 12px}
+.btn{padding:11px 16px;border-radius:12px;background:var(--p);color:white;font-weight:700}.btn.secondary{background:#eef2ff;color:#3730a3}.btn.ok{background:var(--ok)}.btn.warn{background:var(--warn)}.btn.danger{background:var(--bad)}.btn.gray{background:#e2e8f0;color:#334155}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:11px;background:white;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px #6d28d91a}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-weight:700;font-size:15px;margin:0 0 5px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.table{width:100%;border-collapse:collapse;min-width:850px;background:#fff}.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}.table th{background:#f8fafc}.pill{display:inline-block;padding:4px 9px;border-radius:999px;font-size:14px;font-weight:700;background:#eef2ff;color:#3730a3}.pill.ok{background:#dcfce7;color:#166534}.pill.warn{background:#fef3c7;color:#92400e}.pill.bad{background:#fee2e2;color:#991b1b}
+.search{max-width:450px}.notice{padding:12px;border-radius:12px;background:#eff6ff;color:#1e40af;margin:12px 0}.dangerbox{background:#fff1f2;color:#9f1239}.list{display:grid;gap:10px}.item{padding:13px;background:white;border:1px solid var(--line);border-radius:14px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:14px;z-index:50}.modal.show{display:flex}.modalbox{background:white;border-radius:18px;width:min(760px,100%);max-height:92vh;overflow:auto;padding:18px}.modalhead{display:flex;justify-content:space-between;align-items:center}.close{background:#f1f5f9;border-radius:50%;width:40px;height:40px}
+.empty{padding:30px;text-align:center;color:var(--muted)}.right{text-align:right}.money{font-weight:800}.footer{text-align:center;color:var(--muted);padding:25px;font-size:14px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:repeat(2,1fr)}body{font-size:19px}.brand{font-size:22px}}
+@media(max-width:600px){main{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:8px}.card{padding:12px;border-radius:14px}.metric .value{font-size:22px}.formgrid{grid-template-columns:1fr}.section-title{font-size:20px}.head{align-items:flex-start}.table th,.table td{padding:10px 8px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="head"><div><div class="brand">🕉️ শিবম সমিতি</div><div class="sub">Savings • Loan • Daily Collection Manager</div></div>
+ <div id="syncState">● Offline Store</div></div>
+ <nav id="nav">
+  <button class="active" data-page="dash">📊 Dashboard</button>
+  <button data-page="members">👥 সদস্য</button>
+  <button data-page="collect">💰 দৈনিক কালেকশন</button>
+  <button data-page="loans">🏦 লোন</button>
+  <button data-page="savings">💎 সেভিং</button>
+  <button data-page="schedule">📅 Schedule</button>
+  <button data-page="statement">📄 Statement</button>
+  <button data-page="settings">⚙️ Settings</button>
+ </nav>
+</header>
+<main>
+
+<section id="dash" class="page active">
+ <div class="section-title">আজকের Dashboard</div>
+ <div class="grid">
+  <div class="card metric"><div class="label">আজকের মোট কালেকশন</div><div class="value" id="mToday">₹0</div><small>আজকের Savings + Loan</small></div>
+  <div class="card metric"><div class="label">মোট হাতে নগদ</div><div class="value" id="mCash">₹0</div><small>লেনদেনের পর বর্তমান cash</small></div>
+  <div class="card metric"><div class="label">চলমান লোন</div><div class="value" id="mLoans">0</div><small>Active loan accounts</small></div>
+  <div class="card metric"><div class="label">চলমান সেভিং</div><div class="value" id="mSavings">0</div><small>Active savings accounts</small></div>
+ </div>
+ <div class="grid" style="margin-top:14px">
+  <div class="card"><b>আজকের লেনদেন</b><div id="todayList" class="list" style="margin-top:10px"></div></div>
+  <div class="card"><b>আগামী ৫ দিনের Loan Schedule</b><div id="loanDueList" class="list" style="margin-top:10px"></div></div>
+  <div class="card"><b>১৬০+ দিনের Savings Schedule</b><div id="saveScheduleList" class="list" style="margin-top:10px"></div></div>
+  <div class="card"><b>সদস্য সংখ্যা</b><div class="value" id="mMembers" style="font-size:30px;margin-top:8px">0</div><button class="btn" onclick="openMember()">+ সদস্য যোগ</button></div>
+ </div>
+</section>
+
+<section id="members" class="page">
+ <div class="row between"><div class="section-title">সদস্য তালিকা</div><button class="btn" onclick="openMember()">+ নতুন সদস্য</button></div>
+ <input class="search" id="memberSearch" placeholder="নাম / মোবাইল / ID দিয়ে খুঁজুন" oninput="renderMembers()">
+ <div class="tablewrap" style="margin-top:12px"><table class="table"><thead><tr><th>ID</th><th>নাম</th><th>মোবাইল</th><th>Saving</th><th>Loan</th><th>Action</th></tr></thead><tbody id="memberRows"></tbody></table></div>
+</section>
+
+<section id="collect" class="page">
+ <div class="section-title">দৈনিক টাকা কালেকশন</div>
+ <div class="card">
+  <div class="formgrid">
+   <div class="field"><label>সদস্য</label><select id="cMember"></select></div>
+   <div class="field"><label>Loan কিস্তি</label><input id="cLoanAmount" type="number" min="0" step="1" value="0" oninput="updateCombinedPayment()"></div>
+   <div class="field"><label>Savings জমা</label><input id="cSavingAmount" type="number" min="0" step="1" value="0" oninput="updateCombinedPayment()"></div>
+   <div class="field"><label>মোট Payment</label><input id="cAmount" type="number" min="0" step="1" readonly></div>
+   <div class="field"><label>জমার তারিখ (মডিফাই করা যাবে)</label><input id="cDate" type="date"></div>
+   <div class="field"><label>পেমেন্ট মাধ্যম</label><select id="cMethod"><option>Cash</option><option>QR</option><option>Bank</option></select></div>
+   <div class="field"><label>নোট</label><input id="cNote" placeholder="ঐচ্ছিক"></div>
+  </div>
+  <div class="notice" id="combinedPreview">Loan ₹0 + Savings ₹0 = <b>মোট ₹0</b></div>
+  <div class="row" style="margin-top:12px"><button class="btn ok" onclick="addCollection()">✓ একসাথে Payment জমা করুন</button><button class="btn gray" onclick="setToday()">আজকের তারিখ</button></div>
+ </div>
+ <div class="section-title">লেনদেনের ইতিহাস</div>
+ <div class="tablewrap"><table class="table"><thead><tr><th>তারিখ</th><th>সদস্য</th><th>অ্যাকাউন্ট</th><th>পরিমাণ</th><th>মাধ্যম</th><th>Action</th></tr></thead><tbody id="txRows"></tbody></table></div>
+</section>
+
+<section id="loans" class="page">
+ <div class="row between"><div class="section-title">Loan Accounts</div><button class="btn" onclick="openLoan()">+ নতুন Loan</button></div>
+ <div class="notice">নিয়ম: উদাহরণস্বরূপ ₹10,000 Loan হলে 100 কিস্তি × ₹110 = ₹11,000। অর্থাৎ মোট payable = principal-এর 110%।</div>
+ <div class="tablewrap"><table class="table"><thead><tr><th>Account</th><th>সদস্য</th><th>Loan</th><th>প্রতি কিস্তি</th><th>পরিশোধ</th><th>বাকি</th><th>শেষ তারিখ</th><th>Status</th><th>Action</th></tr></thead><tbody id="loanRows"></tbody></table></div>
+</section>
+
+<section id="savings" class="page">
+ <div class="row between"><div class="section-title">Savings Accounts</div><button class="btn" onclick="openSaving()">+ নতুন Savings</button></div>
+ <div class="notice">ম্যাচুরিটি: Savings শুরুর তারিখ থেকে 360 দিন পরে মোট আসলের উপর 6% যোগ হবে। 360 দিনের আগে তুলে নিলে শুধু আসল ফেরত হবে। 160 দিন পরে schedule-এ দেখাবে এবং প্রয়োজন হলে নতুন Savings account তৈরি করা যাবে।</div>
+ <div class="tablewrap"><table class="table"><thead><tr><th>Account</th><th>সদস্য</th><th>শুরু</th><th>জমা</th><th>ম্যাচুরিটি</th><th>ম্যাচুরিটি মূল্য</th><th>Status</th><th>Action</th></tr></thead><tbody id="savingRows"></tbody></table></div>
+</section>
+
+<section id="schedule" class="page">
+ <div class="section-title">Schedule List</div>
+ <div class="grid">
+  <div class="card"><b>🔔 Loan: শেষ হতে ৫ দিন বা কম</b><div id="loanSchedule" class="list" style="margin-top:10px"></div></div>
+  <div class="card"><b>🔔 Savings: ১৬০ দিন পার</b><div id="savingSchedule" class="list" style="margin-top:10px"></div></div>
+ </div>
+</section>
+
+<section id="statement" class="page">
+ <div class="section-title">সদস্য Statement</div>
+ <div class="card">
+  <div class="formgrid"><div class="field"><label>সদস্য</label><select id="stMember" onchange="renderStatement()"></select></div>
+  <div class="field"><label>তারিখ থেকে</label><input id="stFrom" type="date" onchange="renderStatement()"></div>
+  <div class="field"><label>তারিখ পর্যন্ত</label><input id="stTo" type="date" onchange="renderStatement()"></div></div>
+ </div>
+ <div id="statementOut" style="margin-top:14px"></div>
+</section>
+
+<section id="settings" class="page">
+ <div class="section-title">Settings & Online Sync</div>
+ <div class="card">
+  <div class="notice">এই HTML ফাইলটি offline-first। একই কম্পিউটার/মোবাইলে ইন্টারনেট ছাড়াই কাজ করবে। একাধিক ডিভাইসে সত্যিকারের live sync করতে Firebase/নিজস্ব server প্রয়োজন। নিচের Firebase config বসালে online sync সক্রিয় করার জায়গা প্রস্তুত থাকবে।</div>
+  <div class="formgrid">
+   <div class="field"><label>সমিতির নাম</label><input id="setName"></div>
+   <div class="field"><label>Admin PIN</label><input id="setPin" type="password"></div>
+   <div class="field"><label>Daily default Savings</label><input id="setDaily" type="number"></div>
+  </div>
+  <button class="btn" style="margin-top:12px" onclick="saveSettings()">Settings Save</button>
+  <hr style="margin:20px 0;border:0;border-top:1px solid var(--line)">
+  <b>Backup</b><div class="row" style="margin-top:10px"><button class="btn secondary" onclick="exportBackup()">⬇ Backup JSON</button><label class="btn gray">⬆ Restore JSON<input type="file" accept=".json" onchange="importBackup(event)" hidden></label><button class="btn danger" onclick="clearAll()">সব Data মুছুন</button></div>
+ </div>
+</section>
+</main>
+<div class="footer">শিবম সমিতি • Offline-first Collection Manager</div>
+</div>
+
+<div id="modal" class="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle">Form</h2><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+
+<script>
+const KEY='shivam_samiti_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"members":[],"loans":[],"savings":[],"tx":[],"settings":{"name":"শিবম সমিতি","pin":"1234","daily":200}}');
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const iso=d=>{let x=new Date(d);return new Date(x.getTime()-x.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const today=()=>iso(new Date());
+const addDays=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return iso(x)};
+const daysBetween=(a,b)=>Math.floor((new Date(b)-new Date(a))/86400000);
+const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6);
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function member(id){return db.members.find(x=>x.id===id)}
+function activeLoan(mid){return db.loans.find(x=>x.memberId===mid&&x.status==='active')}
+function activeSaving(mid){return db.savings.find(x=>x.memberId===mid&&x.status==='active')}
+function nav(){document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(b.dataset.page).classList.add('active');renderAll()})}
+function openModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function openMember(id){
+ let m=member(id)||{};
+ openModal(id?'সদস্য Edit':'নতুন সদস্য',`<div class="formgrid">
+ <div class="field"><label>নাম</label><input id="fmName" value="${esc(m.name||'')}"></div>
+ <div class="field"><label>মোবাইল</label><input id="fmMobile" value="${esc(m.mobile||'')}"></div>
+ <div class="field"><label>যোগদানের তারিখ</label><input id="fmJoinDate" type="date" value="${esc(m.joinDate||today())}" ${id?'disabled':''}></div>
+ <div class="field"><label>Member ID (Automatic)</label><input id="fmId" value="${esc(m.id||'')}" placeholder="তারিখ দিলে automatic হবে" readonly></div>
+ <div class="field"><label>দৈনিক Savings জমা</label><input id="fmDailySaving" type="number" min="0" step="1" value="${esc(m.dailySaving ?? db.settings.daily ?? 200)}"></div>
+ <div class="field"><label>ঠিকানা</label><input id="fmAddr" value="${esc(m.address||'')}"></div></div>
+ <div class="row" style="margin-top:14px"><button class="btn ok" onclick="saveMember('${id||''}')">Save</button>${id?`<button class="btn danger" onclick="deleteMember('${id}')">Delete</button>`:''}</div>`);
+}
+function saveMember(old){
+ let name=document.getElementById('fmName').value.trim(),joinDate=document.getElementById('fmJoinDate').value;
+ if(!name)return alert('সদস্যের নাম দিন');
+ if(!joinDate)return alert('যোগদানের তারিখ দিন');
+ let id=old ? old : ('M-'+joinDate.replaceAll('-',''));
+ let obj={id,name,mobile:document.getElementById('fmMobile').value.trim(),joinDate,dailySaving:+document.getElementById('fmDailySaving').value||0,address:document.getElementById('fmAddr').value.trim()};
+ if(old){Object.assign(member(old),obj)}else db.members.push(obj);
+ closeModal();save();
+}
+function deleteMember(id){if(!confirm('এই সদস্য ও তার account মুছবেন?'))return;db.members=db.members.filter(x=>x.id!==id);db.loans=db.loans.filter(x=>x.memberId!==id);db.savings=db.savings.filter(x=>x.memberId!==id);db.tx=db.tx.filter(x=>x.memberId!==id);closeModal();save()}
+function openLoan(mid=''){
+ let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
+ openModal('নতুন Loan Account',`<div class="formgrid">
+ <div class="field"><label>সদস্য</label><select id="flMember">${options}</select></div>
+ <div class="field"><label>Loan Principal</label><input id="flPrincipal" type="number" value="10000" min="1"></div>
+ <div class="field"><label>শুরু তারিখ</label><input id="flDate" type="date" value="${today()}"></div>
+ <div class="field"><label>কিস্তি সংখ্যা</label><input id="flInst" type="number" value="100" min="1"></div>
+ </div><div class="notice">মোট repayment = principal × 1.10; প্রতি কিস্তি = মোট repayment ÷ কিস্তি সংখ্যা।</div>
+ <button class="btn ok" onclick="saveLoan()">Loan Account তৈরি</button>`);
+}
+function saveLoan(){
+ let mid=flMember.value,p=+flPrincipal.value,n=+flInst.value||100,d=flDate.value;
+ if(!mid||p<=0)return alert('তথ্য পূরণ করুন');
+ let total=Math.round(p*1.10*100)/100,inst=Math.round(total/n*100)/100;
+ let loan={id:uid('L'),memberId:mid,principal:p,total,installments:n,installment:inst,start:d,end:addDays(d,n-1),paid:0,status:'active',createdAt:new Date().toISOString()};
+ db.loans.push(loan);closeModal();save();
+}
+function openSaving(mid=''){
+ let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
+ openModal('নতুন Savings Account',`<div class="formgrid"><div class="field"><label>সদস্য</label><select id="fsMember">${options}</select></div><div class="field"><label>শুরু তারিখ</label><input id="fsDate" type="date" value="${today()}"></div></div><div class="notice">360 দিনে maturity = মোট saving × 1.06। 360 দিনের আগে withdrawal হলে interest = 0।</div><button class="btn ok" onclick="saveSaving()">Savings Account তৈরি</button>`);
+}
+function saveSaving(){let mid=fsMember.value,d=fsDate.value;if(!mid)return alert('সদস্য নির্বাচন করুন');db.savings.push({id:uid('S'),memberId:mid,start:d,maturity:addDays(d,360),status:'active',total:0,createdAt:new Date().toISOString()});closeModal();save()}
+function updateCombinedPayment(){
+ let loan=+(document.getElementById('cLoanAmount')?.value||0), saving=+(document.getElementById('cSavingAmount')?.value||0), total=loan+saving;
+ if(document.getElementById('cAmount')) document.getElementById('cAmount').value=total;
+ let p=document.getElementById('combinedPreview'); if(p) p.innerHTML=`Loan ${money(loan)} + Savings ${money(saving)} = <b>মোট ${money(total)}</b>`;
+}
+function addCollection(){
+ let mid=cMember.value, loanAmt=+cLoanAmount.value||0, savingAmt=+cSavingAmount.value||0, d=cDate.value||today();
+ if(!mid)return alert('সদস্য নির্বাচন করুন');
+ if(loanAmt<=0 && savingAmt<=0)return alert('Loan বা Savings-এর অন্তত একটি amount দিন');
+ let loan=activeLoan(mid), saving=activeSaving(mid);
+ if(loanAmt>0 && !loan)return alert('এই সদস্যের active Loan নেই');
+ if(savingAmt>0 && !saving)return alert('এই সদস্যের active Savings নেই');
+ if(loan && loanAmt>0){
+   let remain=Math.max(0,loan.total-loan.paid);
+   if(loanAmt>remain)return alert(`Loan বাকি ${money(remain)}। এর বেশি payment দেওয়া যাবে না।`);
+   loan.paid+=loanAmt;
+   if(loan.paid>=loan.total){loan.paid=loan.total;loan.status='schedule';}
+   db.tx.push({id:uid('T'),memberId:mid,type:'loan',amount:loanAmt,date:d,method:cMethod.value,note:cNote.value,accountId:loan.id,batchId:uid('B')});
+ }
+ if(saving && savingAmt>0){
+   saving.total+=savingAmt;
+   db.tx.push({id:uid('T'),memberId:mid,type:'saving',amount:savingAmt,date:d,method:cMethod.value,note:cNote.value,accountId:saving.id,batchId:uid('B')});
+ }
+ closeModalSafe();save();
+}
+function closeModalSafe(){document.querySelectorAll('#cNote,#cAmount').forEach(x=>x.value='')}
+function editTx(id){
+ let t=db.tx.find(x=>x.id===id);if(!t)return;
+ let pin=prompt('Edit PIN দিন');if(pin!==db.settings.pin)return alert('ভুল PIN');
+ let a=prompt('নতুন টাকা',t.amount),d=prompt('নতুন তারিখ YYYY-MM-DD',t.date);a=+a;
+ if(!a||!d)return;
+ let diff=a-t.amount,acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
+ if(t.type==='loan')acc.paid=Math.max(0,Math.min(acc.total,acc.paid+diff));else acc.total=Math.max(0,acc.total+diff);
+ t.amount=a;t.date=d;save();
+}
+function delTx(id){let pin=prompt('Delete PIN দিন');if(pin!==db.settings.pin)return alert('ভুল PIN');let t=db.tx.find(x=>x.id===id),acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);if(t.type==='loan')acc.paid=Math.max(0,acc.paid-t.amount);else acc.total=Math.max(0,acc.total-t.amount);db.tx=db.tx.filter(x=>x.id!==id);save()}
+function finishLoan(id){let l=db.loans.find(x=>x.id===id);if(!l)return;l.status='schedule';save()}
+function matureSaving(id,early=false){let s=db.savings.find(x=>x.id===id);if(!s)return;let days=daysBetween(s.start,today()),interest=days>=360?s.total*.06:0;if(days<360&&!confirm('৩৬০ দিনের আগে — শুধু আসল ফেরত হবে। Continue?'))return;let amount=s.total+interest;alert(`ফেরতযোগ্য: ${money(amount)}\nমূলধন: ${money(s.total)}\nসুদ: ${money(interest)}`);s.status='matured';s.closedDate=today();save()}
+function renderMembers(){
+ let q=(memberSearch.value||'').toLowerCase(),rows=db.members.filter(m=>(m.name+m.mobile+m.id).toLowerCase().includes(q));
+ memberRows.innerHTML=rows.map(m=>`<tr><td>${esc(m.id)}</td><td><b>${esc(m.name)}</b></td><td>${esc(m.mobile)}</td><td>${activeSaving(m.id)?money(activeSaving(m.id).total):'—'}</td><td>${activeLoan(m.id)?money(activeLoan(m.id).total-activeLoan(m.id).paid):'—'}</td><td><button class="btn secondary" onclick="openMember('${m.id}')">Edit</button> <button class="btn" onclick="openLoan('${m.id}')">Loan</button> <button class="btn ok" onclick="openSaving('${m.id}')">Saving</button></td></tr>`).join('')||`<tr><td colspan="6" class="empty">কোনো সদস্য নেই</td></tr>`;
+}
+function fillSelects(){
+ let opts=db.members.map(m=>`<option value="${m.id}">${esc(m.name)} — ${m.id}</option>`).join('');
+ cMember.innerHTML=opts||'<option value="">আগে সদস্য যোগ করুন</option>';stMember.innerHTML='<option value="">সদস্য নির্বাচন করুন</option>'+opts;
+}
+function updateCollectionDefaults(){
+ let mid=cMember.value, l=activeLoan(mid), s=activeSaving(mid);
+ if(document.getElementById('cLoanAmount')) document.getElementById('cLoanAmount').value=l?l.installment:0;
+ if(document.getElementById('cSavingAmount')) document.getElementById('cSavingAmount').value=s?(db.settings.daily||100):0;
+ updateCombinedPayment();
+}
+function renderTx(){
+ txRows.innerHTML=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{let m=member(t.memberId);return `<tr><td>${t.date}</td><td>${esc(m?.name||'Deleted')}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td class="money">${money(t.amount)}</td><td>${esc(t.method)}</td><td><button class="btn secondary" onclick="editTx('${t.id}')">Edit</button> <button class="btn danger" onclick="delTx('${t.id}')">Delete</button></td></tr>`}).join('')||`<tr><td colspan="6" class="empty">লেনদেন নেই</td></tr>`;
+}
+function renderLoans(){
+ loanRows.innerHTML=db.loans.map(l=>{let m=member(l.memberId),remain=Math.max(0,l.total-l.paid),days=daysBetween(today(),l.end);return `<tr><td>${l.id}</td><td>${esc(m?.name||'')}</td><td>${money(l.principal)}</td><td>${money(l.installment)}</td><td>${money(l.paid)}</td><td>${money(remain)}</td><td>${l.end}</td><td><span class="pill ${l.status==='active'?'ok':'warn'}">${l.status==='active'?'Active':'Schedule'}</span></td><td>${l.status==='active'?`<button class="btn ok" onclick="quickLoan('${l.memberId}')">Payment</button>`:`<button class="btn" onclick="openLoan('${l.memberId}')">নতুন Loan</button>`}</td></tr>`}).join('')||`<tr><td colspan="9" class="empty">Loan নেই</td></tr>`;
+}
+function quickLoan(mid){document.querySelector('[data-page="collect"]').click();cMember.value=mid;updateCollectionDefaults();cLoanAmount.value=activeLoan(mid)?.installment||0;cSavingAmount.value=activeSaving(mid)?.total?0:0;updateCombinedPayment();cDate.value=today()}
+function renderSavings(){
+ savingRows.innerHTML=db.savings.map(s=>{let m=member(s.memberId),days=daysBetween(s.start,today()),val=days>=360?s.total*1.06:s.total;return `<tr><td>${s.id}</td><td>${esc(m?.name||'')}</td><td>${s.start}</td><td>${money(s.total)}</td><td>${s.maturity}</td><td>${money(val)}</td><td><span class="pill ${s.status==='active'?'ok':'warn'}">${s.status}</span></td><td>${s.status==='active'?`<button class="btn warn" onclick="matureSaving('${s.id}')">Maturity/Withdraw</button>`:''}</td></tr>`}).join('')||`<tr><td colspan="8" class="empty">Savings নেই</td></tr>`;
+}
+function schedules(){
+ let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(today(),l.end)<=5&&daysBetween(today(),l.end)>=0),sd=db.savings.filter(s=>s.status==='active'&&daysBetween(s.start,today())>=160);
+ let make=(arr,loan)=>arr.map(x=>{let m=member(x.memberId);return `<div class="item"><b>${esc(m?.name||'')}</b><br>${loan?'শেষ: '+x.end+' • বাকি '+money(x.total-x.paid):'শুরু: '+x.start+' • বর্তমান '+money(x.total)}<br><span class="pill warn">${loan?'৫ দিনের মধ্যে Loan শেষ':'১৬০+ দিন Savings'}</span></div>`}).join('')||'<div class="empty">Schedule নেই</div>';
+ loanSchedule.innerHTML=make(ld,true);loanDueList.innerHTML=make(ld,true);savingSchedule.innerHTML=make(sd,false);saveScheduleList.innerHTML=make(sd,false);
+}
+function renderDash(){
+ let td=today(),todayTotal=db.tx.filter(t=>t.date===td).reduce((s,t)=>s+t.amount,0);
+ let inflow=db.tx.reduce((s,t)=>s+t.amount,0);
+ mToday.textContent=money(todayTotal);mCash.textContent=money(inflow);mLoans.textContent=db.loans.filter(x=>x.status==='active').length;mSavings.textContent=db.savings.filter(x=>x.status==='active').length;mMembers.textContent=db.members.length;
+ todayList.innerHTML=db.tx.filter(t=>t.date===td).slice().reverse().map(t=>{let m=member(t.memberId);return `<div class="item">${esc(m?.name||'')} — <b>${money(t.amount)}</b> <span class="pill">${t.type}</span></div>`}).join('')||'<div class="empty">আজ কোনো collection নেই</div>';
+}
+function renderStatement(){
+ let mid=stMember.value;if(!mid){statementOut.innerHTML='';return}let m=member(mid),from=stFrom.value,to=stTo.value;
+ let tx=db.tx.filter(t=>t.memberId===mid&&(!from||t.date>=from)&&(!to||t.date<=to)).sort((a,b)=>a.date.localeCompare(b.date));
+ let sav=db.savings.filter(s=>s.memberId===mid),loan=db.loans.filter(l=>l.memberId===mid);
+ statementOut.innerHTML=`<div class="card"><h2>${esc(m.name)} (${esc(m.id)})</h2><div class="grid"><div class="card"><small>মোট Savings জমা</small><div class="value">${money(sav.reduce((x,s)=>x+s.total,0))}</div></div><div class="card"><small>Loan বাকি</small><div class="value">${money(loan.reduce((x,l)=>x+Math.max(0,l.total-l.paid),0))}</div></div></div><div class="tablewrap" style="margin-top:12px"><table class="table"><thead><tr><th>তারিখ</th><th>Account</th><th>Amount</th><th>Method</th></tr></thead><tbody>${tx.map(t=>`<tr><td>${t.date}</td><td>${t.type}</td><td>${money(t.amount)}</td><td>${t.method}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">কোনো transaction নেই</td></tr>'}</tbody></table></div></div>`;
+}
+function setToday(){cDate.value=today()}
+function saveSettings(){db.settings.name=setName.value||'শিবম সমিতি';db.settings.pin=setPin.value||'1234';db.settings.daily=+setDaily.value||100;save();alert('Settings saved')}
+function exportBackup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shivam-samiti-backup-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)}
+function importBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.members||!x.tx)throw 1;db=x;save();alert('Backup restored')}catch{alert('ভুল backup file')}};r.readAsText(f)}
+function clearAll(){if(prompt('সব data মুছতে Admin PIN দিন')!==db.settings.pin)return alert('ভুল PIN');localStorage.removeItem(KEY);location.reload()}
+function renderAll(){
+ fillSelects();renderMembers();renderTx();renderLoans();renderSavings();schedules();renderDash();renderStatement();
+ setName.value=db.settings.name;setPin.value=db.settings.pin;setDaily.value=db.settings.daily;
+ if(!cDate.value)cDate.value=today();
+}
+nav();
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='fmJoinDate'){const b=document.getElementById('fmId');if(b&&!b.disabled)b.value='M-'+e.target.value.replaceAll('-','')}});
+renderAll();
+cMember.onchange=()=>updateCollectionDefaults();
+updateCollectionDefaults();
+window.addEventListener('online',()=>{syncState.textContent='● Online • Local Store';syncState.style.color='#bbf7d0'});
+window.addEventListener('offline',()=>{syncState.textContent='● Offline Store';syncState.style.color='white'});
+</script>
+</body>
+</html>
