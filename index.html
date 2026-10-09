@@ -24,6 +24,8 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 .search{max-width:450px}.notice{padding:12px;border-radius:12px;background:#eff6ff;color:#1e40af;margin:12px 0}.dangerbox{background:#fff1f2;color:#9f1239}.list{display:grid;gap:10px}.item{padding:13px;background:white;border:1px solid var(--line);border-radius:14px}
 .modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:14px;z-index:50}.modal.show{display:flex}.modalbox{background:white;border-radius:18px;width:min(760px,100%);max-height:92vh;overflow:auto;padding:18px}.modalhead{display:flex;justify-content:space-between;align-items:center}.close{background:#f1f5f9;border-radius:50%;width:40px;height:40px}
 .empty{padding:30px;text-align:center;color:var(--muted)}.right{text-align:right}.money{font-weight:800}.footer{text-align:center;color:var(--muted);padding:25px;font-size:14px}
+.summary-box{background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:12px;margin-bottom:12px;color:#166534}
+.summary-box-loan{background:#fefce8;border:1px solid #fef08a;padding:12px;border-radius:12px;margin-bottom:12px;color:#854d0e}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:repeat(2,1fr)}body{font-size:19px}.brand{font-size:22px}}
 @media(max-width:600px){main{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:8px}.card{padding:12px;border-radius:14px}.metric .value{font-size:22px}.formgrid{grid-template-columns:1fr}.section-title{font-size:20px}.head{align-items:flex-start}.table th,.table td{padding:10px 8px}}
 </style>
@@ -61,7 +63,7 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
  <div class="grid" style="margin-top:14px">
   <div class="card"><b>আজকের লেনদেন</b><div id="todayList" class="list" style="margin-top:10px"></div></div>
   <div class="card"><b>আগামী ৫ দিনের Loan Schedule</b><div id="loanDueList" class="list" style="margin-top:10px"></div></div>
-  <div class="card"><b>১৬০+ দিনের Savings Schedule</b><div id="saveScheduleList" class="list" style="margin-top:10px"></div></div>
+  <div class="card"><b>৩৬০+ দিনের Savings Schedule</b><div id="saveScheduleSummaryDash" style="margin-top:6px"></div><div id="saveScheduleList" class="list" style="margin-top:10px"></div></div>
   <div class="card"><b>সদস্য সংখ্যা</b><div class="value" id="mMembers" style="font-size:30px;margin-top:8px">0</div><button class="btn" onclick="openMember()">+ সদস্য যোগ</button></div>
  </div>
 </section>
@@ -93,8 +95,8 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 
 <section id="loans" class="page">
  <div class="row between"><div class="section-title">Loan Accounts</div><button class="btn" onclick="openLoan()">+ নতুন Loan</button></div>
- <div class="notice">নিয়ম: উদাহরণস্বরূপ ₹10,000 Loan হলে 100 কিস্তি × ₹110 = ₹11,000। অর্থাৎ মোট payable = principal-এর 110%।</div>
- <div class="tablewrap"><table class="table"><thead><tr><th>Account</th><th>সদস্য</th><th>Loan</th><th>প্রতি কিস্তি</th><th>পরিশোধ</th><th>বাকি</th><th>শেষ তারিখ</th><th>Status</th><th>Action</th></tr></thead><tbody id="loanRows"></tbody></table></div>
+ <div class="notice">নিয়ম: উদাহরণস্বরূপ ₹10,000 Loan হলে 100 কিস্তি × ₹110 = ₹11,000। অর্থাৎ মোট payable = principal-এর 110% (১০% মার্জিন)।</div>
+ <div class="tablewrap"><table class="table"><thead><tr><th>Account</th><th>সদস্য</th><th>Loan</th><th>মার্জিন (লাভ)</th><th>প্রতি কিস্তি</th><th>পরিশোধ</th><th>বাকি</th><th>শেষ তারিখ</th><th>Status</th><th>Action</th></tr></thead><tbody id="loanRows"></tbody></table></div>
 </section>
 
 <section id="savings" class="page">
@@ -104,10 +106,18 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 </section>
 
 <section id="schedule" class="page">
- <div class="section-title">Schedule List</div>
+ <div class="section-title">Schedule List & Account Margins</div>
  <div class="grid">
-  <div class="card"><b>🔔 Loan: শেষ হতে ৫ দিন বা কম</b><div id="loanSchedule" class="list" style="margin-top:10px"></div></div>
-  <div class="card"><b>🔔 Savings: ৩৬০ দিন পার</b><div id="savingSchedule" class="list" style="margin-top:10px"></div></div>
+  <div class="card">
+    <b>🔔 Loan: শেষ হতে ৫ দিন বা কম</b>
+    <div id="loanScheduleSummary" style="margin-top:10px"></div>
+    <div id="loanSchedule" class="list" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <b>🔔 Savings: ৩৬০ দিন পার</b>
+    <div id="savingScheduleSummary" style="margin-top:10px"></div>
+    <div id="savingSchedule" class="list" style="margin-top:10px"></div>
+  </div>
  </div>
 </section>
 
@@ -155,7 +165,6 @@ const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(
 let fbRef = null;
 let isRemoteUpdating = false;
 
-// দুটি ডেটাবেসের তথ্য একসাথে মার্জ করার নিরাপদ ফাংশন যাতে আগের কোনো ডেটা ডিলিট না হয়
 function mergeDatabases(local, remote) {
   if (!remote) return local;
   const merged = {
@@ -195,7 +204,6 @@ function initFirebase() {
     }
     fbRef = firebase.database().ref('shivam_data');
 
-    // ক্লাউড ডেটা এলে সরাসরি না মুছে মার্জ করা হবে
     fbRef.on('value', snapshot => {
       const remoteData = snapshot.val();
       if (remoteData) {
@@ -205,12 +213,10 @@ function initFirebase() {
         renderAll();
         isRemoteUpdating = false;
         
-        // মার্জ করা সম্পূর্ণ ডেটা ক্লাউডে ফিরিয়ে দিয়ে নিশ্চিত করা
         fbRef.update(db);
         syncState.textContent = '● Live Synced';
         syncState.style.color = '#bbf7d0';
       } else {
-        // ক্লাউড যদি একদম খালি থাকে, তবে লোকাল ডেটা মুছে ফেলা হবে না; ক্লাউডে পাঠিয়ে দেওয়া হবে
         if (db.members.length > 0 || db.tx.length > 0) {
           fbRef.set(db);
         }
@@ -232,11 +238,9 @@ function initFirebase() {
 }
 
 function save(){
-  // সর্বদা প্রথমে লোকাল স্টোরেজে স্থায়ী সংরক্ষণ
   localStorage.setItem(KEY, JSON.stringify(db));
   renderAll();
 
-  // অনলাইন থাকলে ব্যাকগ্রাউন্ডে ক্লাউডে পুশ, না থাকলে অফলাইনে জমা থাকবে
   if (fbRef && !isRemoteUpdating) {
     fbRef.set(db).catch(e => console.log('Stored offline in queue'));
   }
@@ -277,7 +281,7 @@ function openLoan(mid=''){
  <div class="field"><label>Loan Principal</label><input id="flPrincipal" type="number" value="10000" min="1"></div>
  <div class="field"><label>শুরু তারিখ</label><input id="flDate" type="date" value="${today()}"></div>
  <div class="field"><label>কিস্তি সংখ্যা</label><input id="flInst" type="number" value="100" min="1"></div>
- </div><div class="notice">মোট repayment = principal × 1.10; প্রতি কিস্তি = মোট repayment ÷ কিস্তি সংখ্যা।</div>
+ </div><div class="notice">মোট repayment = principal × 1.10; প্রতি কিস্তি = মোট repayment ÷ কিস্তি সংখ্যা। (১০% মার্জিন/লাভ)।</div>
  <button class="btn ok" onclick="saveLoan()">Loan Account তৈরি</button>`);
 }
 function saveLoan(){
@@ -348,17 +352,75 @@ function renderTx(){
  txRows.innerHTML=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{let m=member(t.memberId);return `<tr><td>${t.date}</td><td>${esc(m?.name||'Deleted')}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td class="money">${money(t.amount)}</td><td>${esc(t.method)}</td><td><button class="btn secondary" onclick="editTx('${t.id}')">Edit</button> <button class="btn danger" onclick="delTx('${t.id}')">Delete</button></td></tr>`}).join('')||`<tr><td colspan="6" class="empty">লেনদেন নেই</td></tr>`;
 }
 function renderLoans(){
- loanRows.innerHTML=db.loans.map(l=>{let m=member(l.memberId),remain=Math.max(0,l.total-l.paid),days=daysBetween(today(),l.end);return `<tr><td>${l.id}</td><td>${esc(m?.name||'')}</td><td>${money(l.principal)}</td><td>${money(l.installment)}</td><td>${money(l.paid)}</td><td>${money(remain)}</td><td>${l.end}</td><td><span class="pill ${l.status==='active'?'ok':'warn'}">${l.status==='active'?'Active':'Schedule'}</span></td><td>${l.status==='active'?`<button class="btn ok" onclick="quickLoan('${l.memberId}')">Payment</button>`:`<button class="btn" onclick="openLoan('${l.memberId}')">নতুন Loan</button>`}</td></tr>`}).join('')||`<tr><td colspan="9" class="empty">Loan নেই</td></tr>`;
+ loanRows.innerHTML=db.loans.map(l=>{let m=member(l.memberId),remain=Math.max(0,l.total-l.paid),margin=(l.total-l.principal);return `<tr><td>${l.id}</td><td>${esc(m?.name||'')}</td><td>${money(l.principal)}</td><td><b style="color:var(--ok)">${money(margin)}</b></td><td>${money(l.installment)}</td><td>${money(l.paid)}</td><td>${money(remain)}</td><td>${l.end}</td><td><span class="pill ${l.status==='active'?'ok':'warn'}">${l.status==='active'?'Active':'Schedule'}</span></td><td>${l.status==='active'?`<button class="btn ok" onclick="quickLoan('${l.memberId}')">Payment</button>`:`<button class="btn" onclick="openLoan('${l.memberId}')">নতুন Loan</button>`}</td></tr>`}).join('')||`<tr><td colspan="10" class="empty">Loan নেই</td></tr>`;
 }
 function quickLoan(mid){document.querySelector('[data-page="collect"]').click();cMember.value=mid;updateCollectionDefaults();cLoanAmount.value=activeLoan(mid)?.installment||0;cSavingAmount.value=activeSaving(mid)?.total?0:0;updateCombinedPayment();cDate.value=today()}
 function renderSavings(){
  savingRows.innerHTML=db.savings.map(s=>{let m=member(s.memberId),days=daysBetween(s.start,today()),val=days>=360?s.total*1.06:s.total;return `<tr><td>${s.id}</td><td>${esc(m?.name||'')}</td><td>${s.start}</td><td>${money(s.total)}</td><td>${s.maturity}</td><td>${money(val)}</td><td><span class="pill ${s.status==='active'?'ok':'warn'}">${s.status}</span></td><td>${s.status==='active'?`<button class="btn warn" onclick="matureSaving('${s.id}')">Maturity/Withdraw</button>`:''}</td></tr>`}).join('')||`<tr><td colspan="8" class="empty">Savings নেই</td></tr>`;
 }
+
+// শিডিউল এবং মার্জিন গণনা
 function schedules(){
- let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(today(),l.end)<=5&&daysBetween(today(),l.end)>=0),sd=db.savings.filter(s=>s.status==='active'&&daysBetween(s.start,today())>=160);
- let make=(arr,loan)=>arr.map(x=>{let m=member(x.memberId);return `<div class="item"><b>${esc(m?.name||'')}</b><br>${loan?'শেষ: '+x.end+' • বাকি '+money(x.total-x.paid):'শুরু: '+x.start+' • বর্তমান '+money(x.total)}<br><span class="pill warn">${loan?'৫ দিনের মধ্যে Loan শেষ':'১৬০+ দিন Savings'}</span></div>`}).join('')||'<div class="empty">Schedule নেই</div>';
- loanSchedule.innerHTML=make(ld,true);loanDueList.innerHTML=make(ld,true);savingSchedule.innerHTML=make(sd,false);saveScheduleList.innerHTML=make(sd,false);
+ let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(today(),l.end)<=5&&daysBetween(today(),l.end)>=0);
+ // ৩৬০ দিন বা তার বেশি অতিক্রান্ত active savings
+ let sd=db.savings.filter(s=>s.status==='active'&&daysBetween(s.start,today())>=360);
+
+ // সমস্ত লোন মিলে মোট মার্জিন (মোট লাভ)
+ let totalActiveLoanMargin = db.loans.filter(l=>l.status==='active').reduce((sum,l)=>sum+(l.total-l.principal),0);
+ let activeLoansRemaining = db.loans.filter(l=>l.status==='active').reduce((sum,l)=>sum+Math.max(0,l.total-l.paid),0);
+
+ // সমস্ত ম্যাচিউরড সেভিংস মিলে মোট কত টাকা দিতে হবে
+ let totalSavingsPrincipalToPay = sd.reduce((sum,s)=>sum+s.total,0);
+ let totalSavingsPayable = sd.reduce((sum,s)=>sum+(s.total*1.06),0);
+ let totalSavingsInterest = totalSavingsPayable - totalSavingsPrincipalToPay;
+
+ // Loan Schedule UI
+ let loanSummaryHtml = `<div class="summary-box-loan">
+   <div><b>মোট অ্যাক্টিভ Loan মার্জিন (লাভ):</b> ${money(totalActiveLoanMargin)}</div>
+   <div style="font-size:14px;margin-top:4px">মোট বর্তমান ঋণ বাকি: ${money(activeLoansRemaining)}</div>
+ </div>`;
+ if(document.getElementById('loanScheduleSummary')) loanScheduleSummary.innerHTML = loanSummaryHtml;
+
+ let makeLoans = arr => arr.map(x=>{
+   let m=member(x.memberId);
+   let margin = x.total - x.principal;
+   return `<div class="item">
+     <b>${esc(m?.name||'')}</b><br>
+     শেষ তারিখ: ${x.end} • বাকি: <b>${money(x.total-x.paid)}</b><br>
+     <small>Loan মার্জিন: <b>${money(margin)}</b> (মূল ঋণ: ${money(x.principal)})</small><br>
+     <span class="pill warn">৫ দিনের মধ্যে Loan শেষ</span>
+   </div>`;
+ }).join('') || '<div class="empty">Schedule নেই</div>';
+
+ loanSchedule.innerHTML = makeLoans(ld);
+ loanDueList.innerHTML = makeLoans(ld);
+
+ // Savings Schedule UI (৩৬০ দিন পার)
+ let savingSummaryHtml = `<div class="summary-box">
+   <div><b>৩৬০ দিন উত্তীর্ণ মোট সেভিংস দিতে হবে:</b> ${money(totalSavingsPayable)}</div>
+   <div style="font-size:14px;margin-top:4px">(মূল জমা: ${money(totalSavingsPrincipalToPay)} + ৬% সুদ: ${money(totalSavingsInterest)})</div>
+ </div>`;
+ 
+ if(document.getElementById('savingScheduleSummary')) savingScheduleSummary.innerHTML = savingSummaryHtml;
+ if(document.getElementById('saveScheduleSummaryDash')) saveScheduleSummaryDash.innerHTML = savingSummaryHtml;
+
+ let makeSavings = arr => arr.map(x=>{
+   let m=member(x.memberId);
+   let days = daysBetween(x.start, today());
+   let payable = x.total * 1.06;
+   let interest = x.total * 0.06;
+   return `<div class="item">
+     <b>${esc(m?.name||'')}</b> (${days} দিন অতিবাহিত)<br>
+     জমা আসল: ${money(x.total)} • ৬% সুদ: ${money(interest)}<br>
+     <b>মোট ফেরত দিতে হবে: <span style="color:var(--ok)">${money(payable)}</span></b><br>
+     <div style="margin-top:5px"><button class="btn warn" style="padding:4px 8px;font-size:14px" onclick="matureSaving('${x.id}')">পেমেন্ট ক্লোজ করুন</button> <span class="pill ok">৩৬০ দিন পার</span></div>
+   </div>`;
+ }).join('') || '<div class="empty">৩৬০ দিন পার হওয়া কোনো Savings নেই</div>';
+
+ savingSchedule.innerHTML = makeSavings(sd);
+ saveScheduleList.innerHTML = makeSavings(sd);
 }
+
 function renderDash(){
  let td=today(),todayTotal=db.tx.filter(t=>t.date===td).reduce((s,t)=>s+t.amount,0);
  let inflow=db.tx.reduce((s,t)=>s+t.amount,0);
