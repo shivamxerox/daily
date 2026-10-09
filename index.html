@@ -4,11 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>শিবম সমিতি — Collection Manager</title>
-
-<!-- Firebase Realtime Database SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <style>
 :root{--p:#6d28d9;--p2:#4f46e5;--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#64748b;--ok:#059669;--warn:#d97706;--bad:#dc2626;--line:#e2e8f0}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans Bengali","Segoe UI",Arial,sans-serif;font-size:18px}
@@ -32,6 +27,10 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:repeat(2,1fr)}body{font-size:19px}.brand{font-size:22px}}
 @media(max-width:600px){main{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:8px}.card{padding:12px;border-radius:14px}.metric .value{font-size:22px}.formgrid{grid-template-columns:1fr}.section-title{font-size:20px}.head{align-items:flex-start}.table th,.table td{padding:10px 8px}}
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="app">
@@ -125,83 +124,27 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 <section id="settings" class="page">
  <div class="section-title">Settings & Online Sync</div>
  <div class="card">
-  <div class="notice">পিসি ও মোবাইলে একসাথে লাইভ করার জন্য নিচে আপনার Firebase Config JSON পেস্ট করে Save করুন। কনফিগ না দিলেও লোকাল মেমোরিতে সব বাটন আগের মতো কাজ করবে।</div>
+  <div class="notice">অনলাইন লাইভ সিঙ্ক সক্রিয় করতে নিচে Firebase Database URL দিন। নেট না থাকলে ডেটা অফলাইনে সেভ থাকবে এবং নেট পাওয়া মাত্রই সব পিসিতে লাইভ আপডেট হয়ে যাবে।</div>
   <div class="formgrid">
    <div class="field"><label>সমিতির নাম</label><input id="setName"></div>
    <div class="field"><label>Admin PIN</label><input id="setPin" type="password"></div>
    <div class="field"><label>Daily default Savings</label><input id="setDaily" type="number"></div>
+   <div class="field" style="grid-column:span 3"><label>Firebase Realtime Database URL</label><input id="fbDbUrl" placeholder="https://your-project-id-default-rtdb.firebaseio.com"></div>
   </div>
-
-  <div style="margin-top:16px;">
-   <label style="font-weight:700;font-size:15px;display:block;margin-bottom:6px">Firebase Config (পিসি ও মোবাইলে লাইভ সিঙ্ক করার জন্য)</label>
-   <textarea id="setFbConfig" rows="5" placeholder='{"apiKey": "...", "databaseURL": "https://...", "projectId": "..."}'></textarea>
-  </div>
-
-  <button class="btn" style="margin-top:14px" onclick="saveSettings()">Settings Save</button>
+  <button class="btn" style="margin-top:12px" onclick="saveSettings()">Settings Save</button>
   <hr style="margin:20px 0;border:0;border-top:1px solid var(--line)">
   <b>Backup</b><div class="row" style="margin-top:10px"><button class="btn secondary" onclick="exportBackup()">⬇ Backup JSON</button><label class="btn gray">⬆ Restore JSON<input type="file" accept=".json" onchange="importBackup(event)" hidden></label><button class="btn danger" onclick="clearAll()">সব Data মুছুন</button></div>
  </div>
 </section>
 </main>
-<div class="footer">শিবম সমিতি • Collection Manager</div>
+<div class="footer">শিবম সমিতি • Offline-first Collection Manager</div>
 </div>
 
 <div id="modal" class="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle">Form</h2><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
 
 <script>
 const KEY='shivam_samiti_v1';
-const FB_KEY='shivam_samiti_fb_cfg';
-
-let db=JSON.parse(localStorage.getItem(KEY)||'{"members":[],"loans":[],"savings":[],"tx":[],"settings":{"name":"শিবম সমিতি","pin":"1234","daily":200}}');
-
-let rtdb = null;
-let dbRef = null;
-let isApplyingCloud = false;
-
-// Firebase ইনিশিয়ালাইজেশন
-function initFirebase() {
-  const cfgStr = localStorage.getItem(FB_KEY);
-  const syncState = document.getElementById('syncState');
-  if(!cfgStr) {
-    if(syncState) { syncState.textContent = '● Offline Store'; syncState.style.color = '#fff'; }
-    return;
-  }
-  try {
-    const config = JSON.parse(cfgStr);
-    if(!firebase.apps.length) {
-      firebase.initializeApp(config);
-    }
-    rtdb = firebase.database();
-    dbRef = rtdb.ref('shivam_samiti_data');
-
-    if(syncState) { syncState.textContent = '● Connecting...'; syncState.style.color = '#fde047'; }
-
-    // রিয়েলটাইম সিঙ্ক লিসেনার
-    dbRef.on('value', snapshot => {
-      const cloudData = snapshot.val();
-      if(cloudData && cloudData.members) {
-        isApplyingCloud = true;
-        db = cloudData;
-        localStorage.setItem(KEY, JSON.stringify(db));
-        renderAll();
-        isApplyingCloud = false;
-        if(syncState) { syncState.textContent = '● Live Synced'; syncState.style.color = '#86efac'; }
-      } else if(!cloudData) {
-        // ক্লাউড খালি থাকলে লোকাল ডেটা আপলোড হবে
-        dbRef.set(db);
-        if(syncState) { syncState.textContent = '● Live Synced'; syncState.style.color = '#86efac'; }
-      }
-    }, err => {
-      console.warn("Sync Error:", err);
-      if(syncState) { syncState.textContent = '● Sync Offline'; syncState.style.color = '#fca5a5'; }
-    });
-
-  } catch(e) {
-    console.warn("Invalid Firebase Config:", e);
-    if(syncState) { syncState.textContent = '● Config Error'; syncState.style.color = '#fca5a5'; }
-  }
-}
-
+let db=JSON.parse(localStorage.getItem(KEY)||'{"members":[],"loans":[],"savings":[],"tx":[],"settings":{"name":"শিবম সমিতি","pin":"1234","daily":200,"dbUrl":""}}');
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const iso=d=>{let x=new Date(d);return new Date(x.getTime()-x.getTimezoneOffset()*60000).toISOString().slice(0,10)};
 const today=()=>iso(new Date());
@@ -209,12 +152,55 @@ const addDays=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return iso(x)};
 const daysBetween=(a,b)=>Math.floor((new Date(b)-new Date(a))/86400000);
 const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6);
 
-function save(){
-  localStorage.setItem(KEY,JSON.stringify(db));
-  if(dbRef && !isApplyingCloud) {
-    dbRef.set(db).catch(err => console.warn("Cloud save issue:", err));
+let fbRef = null;
+let isRemoteUpdating = false;
+
+function initFirebase() {
+  const url = (db.settings && db.settings.dbUrl) ? db.settings.dbUrl.trim() : '';
+  if (!url) return;
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp({ databaseURL: url });
+    }
+    fbRef = firebase.database().ref('shivam_data');
+    
+    // রিয়েলটাইম ডেটা রিসিভ (কম্পিউটার ও পিসির লাইভ আপডেট)
+    fbRef.on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        isRemoteUpdating = true;
+        db = data;
+        localStorage.setItem(KEY, JSON.stringify(db));
+        renderAll();
+        isRemoteUpdating = false;
+        syncState.textContent = '● Live Synced';
+        syncState.style.color = '#bbf7d0';
+      }
+    });
+
+    // কানেকশন স্টেট মনিটর
+    firebase.database().ref('.info/connected').on('value', snap => {
+      if (snap.val() === true) {
+        syncState.textContent = '● Online • Live';
+        syncState.style.color = '#bbf7d0';
+      } else {
+        syncState.textContent = '● Offline Store';
+        syncState.style.color = '#fed7aa';
+      }
+    });
+  } catch (err) {
+    console.error('Firebase Init Error:', err);
   }
+}
+
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(db));
   renderAll();
+  
+  // ক্লাউডে অটো-সিঙ্ক (নেট না থাকলে Firebase কিউতে জমা রেখে নেট পেলে পুশ করবে)
+  if (fbRef && !isRemoteUpdating) {
+    fbRef.set(db).catch(e => console.log('Offline queue stored'));
+  }
 }
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -224,7 +210,6 @@ function activeSaving(mid){return db.savings.find(x=>x.memberId===mid&&x.status=
 function nav(){document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(b.dataset.page).classList.add('active');renderAll()})}
 function openModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
-
 function openMember(id){
  let m=member(id)||{};
  openModal(id?'সদস্য Edit':'নতুন সদস্য',`<div class="formgrid">
@@ -232,11 +217,10 @@ function openMember(id){
  <div class="field"><label>মোবাইল</label><input id="fmMobile" value="${esc(m.mobile||'')}"></div>
  <div class="field"><label>যোগদানের তারিখ</label><input id="fmJoinDate" type="date" value="${esc(m.joinDate||today())}" ${id?'disabled':''}></div>
  <div class="field"><label>Member ID (Automatic)</label><input id="fmId" value="${esc(m.id||'')}" placeholder="তারিখ দিলে automatic হবে" readonly></div>
- <div class="field"><label>দৈনিক Savings জমা</label><input id="fmDailySaving" type="number" min="0" step="1" value="${esc(m.dailySaving ?? db.settings?.daily ?? 200)}"></div>
+ <div class="field"><label>দৈনিক Savings জমা</label><input id="fmDailySaving" type="number" min="0" step="1" value="${esc(m.dailySaving ?? db.settings.daily ?? 200)}"></div>
  <div class="field"><label>ঠিকানা</label><input id="fmAddr" value="${esc(m.address||'')}"></div></div>
  <div class="row" style="margin-top:14px"><button class="btn ok" onclick="saveMember('${id||''}')">Save</button>${id?`<button class="btn danger" onclick="deleteMember('${id}')">Delete</button>`:''}</div>`);
 }
-
 function saveMember(old){
  let name=document.getElementById('fmName').value.trim(),joinDate=document.getElementById('fmJoinDate').value;
  if(!name)return alert('সদস্যের নাম দিন');
@@ -246,9 +230,7 @@ function saveMember(old){
  if(old){Object.assign(member(old),obj)}else db.members.push(obj);
  closeModal();save();
 }
-
 function deleteMember(id){if(!confirm('এই সদস্য ও তার account মুছবেন?'))return;db.members=db.members.filter(x=>x.id!==id);db.loans=db.loans.filter(x=>x.memberId!==id);db.savings=db.savings.filter(x=>x.memberId!==id);db.tx=db.tx.filter(x=>x.memberId!==id);closeModal();save()}
-
 function openLoan(mid=''){
  let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
  openModal('নতুন Loan Account',`<div class="formgrid">
@@ -259,7 +241,6 @@ function openLoan(mid=''){
  </div><div class="notice">মোট repayment = principal × 1.10; প্রতি কিস্তি = মোট repayment ÷ কিস্তি সংখ্যা।</div>
  <button class="btn ok" onclick="saveLoan()">Loan Account তৈরি</button>`);
 }
-
 function saveLoan(){
  let mid=flMember.value,p=+flPrincipal.value,n=+flInst.value||100,d=flDate.value;
  if(!mid||p<=0)return alert('তথ্য পূরণ করুন');
@@ -267,20 +248,16 @@ function saveLoan(){
  let loan={id:uid('L'),memberId:mid,principal:p,total,installments:n,installment:inst,start:d,end:addDays(d,n-1),paid:0,status:'active',createdAt:new Date().toISOString()};
  db.loans.push(loan);closeModal();save();
 }
-
 function openSaving(mid=''){
  let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
  openModal('নতুন Savings Account',`<div class="formgrid"><div class="field"><label>সদস্য</label><select id="fsMember">${options}</select></div><div class="field"><label>শুরু তারিখ</label><input id="fsDate" type="date" value="${today()}"></div></div><div class="notice">360 দিনে maturity = মোট saving × 1.06। 360 দিনের আগে withdrawal হলে interest = 0।</div><button class="btn ok" onclick="saveSaving()">Savings Account তৈরি</button>`);
 }
-
 function saveSaving(){let mid=fsMember.value,d=fsDate.value;if(!mid)return alert('সদস্য নির্বাচন করুন');db.savings.push({id:uid('S'),memberId:mid,start:d,maturity:addDays(d,360),status:'active',total:0,createdAt:new Date().toISOString()});closeModal();save()}
-
 function updateCombinedPayment(){
  let loan=+(document.getElementById('cLoanAmount')?.value||0), saving=+(document.getElementById('cSavingAmount')?.value||0), total=loan+saving;
  if(document.getElementById('cAmount')) document.getElementById('cAmount').value=total;
  let p=document.getElementById('combinedPreview'); if(p) p.innerHTML=`Loan ${money(loan)} + Savings ${money(saving)} = <b>মোট ${money(total)}</b>`;
 }
-
 function addCollection(){
  let mid=cMember.value, loanAmt=+cLoanAmount.value||0, savingAmt=+cSavingAmount.value||0, d=cDate.value||today();
  if(!mid)return alert('সদস্য নির্বাচন করুন');
@@ -301,9 +278,7 @@ function addCollection(){
  }
  closeModalSafe();save();
 }
-
 function closeModalSafe(){document.querySelectorAll('#cNote,#cAmount').forEach(x=>x.value='')}
-
 function editTx(id){
  let t=db.tx.find(x=>x.id===id);if(!t)return;
  let pin=prompt('Edit PIN দিন');if(pin!==db.settings.pin)return alert('ভুল PIN');
@@ -313,125 +288,75 @@ function editTx(id){
  if(t.type==='loan')acc.paid=Math.max(0,Math.min(acc.total,acc.paid+diff));else acc.total=Math.max(0,acc.total+diff);
  t.amount=a;t.date=d;save();
 }
-
 function delTx(id){let pin=prompt('Delete PIN দিন');if(pin!==db.settings.pin)return alert('ভুল PIN');let t=db.tx.find(x=>x.id===id),acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);if(t.type==='loan')acc.paid=Math.max(0,acc.paid-t.amount);else acc.total=Math.max(0,acc.total-t.amount);db.tx=db.tx.filter(x=>x.id!==id);save()}
-
 function finishLoan(id){let l=db.loans.find(x=>x.id===id);if(!l)return;l.status='schedule';save()}
-
 function matureSaving(id,early=false){let s=db.savings.find(x=>x.id===id);if(!s)return;let days=daysBetween(s.start,today()),interest=days>=360?s.total*.06:0;if(days<360&&!confirm('৩৬০ দিনের আগে — শুধু আসল ফেরত হবে। Continue?'))return;let amount=s.total+interest;alert(`ফেরতযোগ্য: ${money(amount)}\nমূলধন: ${money(s.total)}\nসুদ: ${money(interest)}`);s.status='matured';s.closedDate=today();save()}
-
 function renderMembers(){
  let q=(memberSearch.value||'').toLowerCase(),rows=db.members.filter(m=>(m.name+m.mobile+m.id).toLowerCase().includes(q));
  memberRows.innerHTML=rows.map(m=>`<tr><td>${esc(m.id)}</td><td><b>${esc(m.name)}</b></td><td>${esc(m.mobile)}</td><td>${activeSaving(m.id)?money(activeSaving(m.id).total):'—'}</td><td>${activeLoan(m.id)?money(activeLoan(m.id).total-activeLoan(m.id).paid):'—'}</td><td><button class="btn secondary" onclick="openMember('${m.id}')">Edit</button> <button class="btn" onclick="openLoan('${m.id}')">Loan</button> <button class="btn ok" onclick="openSaving('${m.id}')">Saving</button></td></tr>`).join('')||`<tr><td colspan="6" class="empty">কোনো সদস্য নেই</td></tr>`;
 }
-
 function fillSelects(){
  let opts=db.members.map(m=>`<option value="${m.id}">${esc(m.name)} — ${m.id}</option>`).join('');
  cMember.innerHTML=opts||'<option value="">আগে সদস্য যোগ করুন</option>';stMember.innerHTML='<option value="">সদস্য নির্বাচন করুন</option>'+opts;
 }
-
 function updateCollectionDefaults(){
  let mid=cMember.value, l=activeLoan(mid), s=activeSaving(mid);
  if(document.getElementById('cLoanAmount')) document.getElementById('cLoanAmount').value=l?l.installment:0;
- if(document.getElementById('cSavingAmount')) document.getElementById('cSavingAmount').value=s?(db.settings?.daily||100):0;
+ if(document.getElementById('cSavingAmount')) document.getElementById('cSavingAmount').value=s?(db.settings.daily||100):0;
  updateCombinedPayment();
 }
-
 function renderTx(){
  txRows.innerHTML=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{let m=member(t.memberId);return `<tr><td>${t.date}</td><td>${esc(m?.name||'Deleted')}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td class="money">${money(t.amount)}</td><td>${esc(t.method)}</td><td><button class="btn secondary" onclick="editTx('${t.id}')">Edit</button> <button class="btn danger" onclick="delTx('${t.id}')">Delete</button></td></tr>`}).join('')||`<tr><td colspan="6" class="empty">লেনদেন নেই</td></tr>`;
 }
-
 function renderLoans(){
  loanRows.innerHTML=db.loans.map(l=>{let m=member(l.memberId),remain=Math.max(0,l.total-l.paid),days=daysBetween(today(),l.end);return `<tr><td>${l.id}</td><td>${esc(m?.name||'')}</td><td>${money(l.principal)}</td><td>${money(l.installment)}</td><td>${money(l.paid)}</td><td>${money(remain)}</td><td>${l.end}</td><td><span class="pill ${l.status==='active'?'ok':'warn'}">${l.status==='active'?'Active':'Schedule'}</span></td><td>${l.status==='active'?`<button class="btn ok" onclick="quickLoan('${l.memberId}')">Payment</button>`:`<button class="btn" onclick="openLoan('${l.memberId}')">নতুন Loan</button>`}</td></tr>`}).join('')||`<tr><td colspan="9" class="empty">Loan নেই</td></tr>`;
 }
-
 function quickLoan(mid){document.querySelector('[data-page="collect"]').click();cMember.value=mid;updateCollectionDefaults();cLoanAmount.value=activeLoan(mid)?.installment||0;cSavingAmount.value=activeSaving(mid)?.total?0:0;updateCombinedPayment();cDate.value=today()}
-
 function renderSavings(){
  savingRows.innerHTML=db.savings.map(s=>{let m=member(s.memberId),days=daysBetween(s.start,today()),val=days>=360?s.total*1.06:s.total;return `<tr><td>${s.id}</td><td>${esc(m?.name||'')}</td><td>${s.start}</td><td>${money(s.total)}</td><td>${s.maturity}</td><td>${money(val)}</td><td><span class="pill ${s.status==='active'?'ok':'warn'}">${s.status}</span></td><td>${s.status==='active'?`<button class="btn warn" onclick="matureSaving('${s.id}')">Maturity/Withdraw</button>`:''}</td></tr>`}).join('')||`<tr><td colspan="8" class="empty">Savings নেই</td></tr>`;
 }
-
 function schedules(){
  let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(today(),l.end)<=5&&daysBetween(today(),l.end)>=0),sd=db.savings.filter(s=>s.status==='active'&&daysBetween(s.start,today())>=160);
  let make=(arr,loan)=>arr.map(x=>{let m=member(x.memberId);return `<div class="item"><b>${esc(m?.name||'')}</b><br>${loan?'শেষ: '+x.end+' • বাকি '+money(x.total-x.paid):'শুরু: '+x.start+' • বর্তমান '+money(x.total)}<br><span class="pill warn">${loan?'৫ দিনের মধ্যে Loan শেষ':'১৬০+ দিন Savings'}</span></div>`}).join('')||'<div class="empty">Schedule নেই</div>';
  loanSchedule.innerHTML=make(ld,true);loanDueList.innerHTML=make(ld,true);savingSchedule.innerHTML=make(sd,false);saveScheduleList.innerHTML=make(sd,false);
 }
-
 function renderDash(){
  let td=today(),todayTotal=db.tx.filter(t=>t.date===td).reduce((s,t)=>s+t.amount,0);
  let inflow=db.tx.reduce((s,t)=>s+t.amount,0);
  mToday.textContent=money(todayTotal);mCash.textContent=money(inflow);mLoans.textContent=db.loans.filter(x=>x.status==='active').length;mSavings.textContent=db.savings.filter(x=>x.status==='active').length;mMembers.textContent=db.members.length;
  todayList.innerHTML=db.tx.filter(t=>t.date===td).slice().reverse().map(t=>{let m=member(t.memberId);return `<div class="item">${esc(m?.name||'')} — <b>${money(t.amount)}</b> <span class="pill">${t.type}</span></div>`}).join('')||'<div class="empty">আজ কোনো collection নেই</div>';
 }
-
 function renderStatement(){
  let mid=stMember.value;if(!mid){statementOut.innerHTML='';return}let m=member(mid),from=stFrom.value,to=stTo.value;
  let tx=db.tx.filter(t=>t.memberId===mid&&(!from||t.date>=from)&&(!to||t.date<=to)).sort((a,b)=>a.date.localeCompare(b.date));
  let sav=db.savings.filter(s=>s.memberId===mid),loan=db.loans.filter(l=>l.memberId===mid);
  statementOut.innerHTML=`<div class="card"><h2>${esc(m.name)} (${esc(m.id)})</h2><div class="grid"><div class="card"><small>মোট Savings জমা</small><div class="value">${money(sav.reduce((x,s)=>x+s.total,0))}</div></div><div class="card"><small>Loan বাকি</small><div class="value">${money(loan.reduce((x,l)=>x+Math.max(0,l.total-l.paid),0))}</div></div></div><div class="tablewrap" style="margin-top:12px"><table class="table"><thead><tr><th>তারিখ</th><th>Account</th><th>Amount</th><th>Method</th></tr></thead><tbody>${tx.map(t=>`<tr><td>${t.date}</td><td>${t.type}</td><td>${money(t.amount)}</td><td>${t.method}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">কোনো transaction নেই</td></tr>'}</tbody></table></div></div>`;
 }
-
 function setToday(){cDate.value=today()}
-
 function saveSettings(){
   db.settings.name=setName.value||'শিবম সমিতি';
   db.settings.pin=setPin.value||'1234';
   db.settings.daily=+setDaily.value||100;
-  
-  const fbTxt = setFbConfig.value.trim();
-  if(fbTxt) {
-    try {
-      JSON.parse(fbTxt);
-      localStorage.setItem(FB_KEY, fbTxt);
-    } catch(err) {
-      return alert('Firebase Config টি সঠিক JSON ফরম্যাটে নেই। দয়া করে সঠিক ফরম্যাট দিন।');
-    }
-  } else {
-    localStorage.removeItem(FB_KEY);
-  }
-  
+  db.settings.dbUrl=(fbDbUrl.value||'').trim();
   save();
-  alert('Settings saved! পৃষ্ঠাটি রিলোড হচ্ছে...');
-  location.reload();
+  initFirebase();
+  alert('Settings saved! সিঙ্ক চালু হয়েছে।');
 }
-
 function exportBackup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shivam-samiti-backup-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.members||!x.tx)throw 1;db=x;save();alert('Backup restored')}catch{alert('ভুল backup file')}};r.readAsText(f)}
-
-function clearAll(){
-  if(prompt('সব data মুছতে Admin PIN দিন')!==db.settings.pin)return alert('ভুল PIN');
-  localStorage.removeItem(KEY);
-  if(dbRef) dbRef.remove();
-  location.reload();
-}
-
+function clearAll(){if(prompt('সব data মুছতে Admin PIN দিন')!==db.settings.pin)return alert('ভুল PIN');localStorage.removeItem(KEY);location.reload()}
 function renderAll(){
  fillSelects();renderMembers();renderTx();renderLoans();renderSavings();schedules();renderDash();renderStatement();
- setName.value=db.settings?.name||'শিবম সমিতি';
- setPin.value=db.settings?.pin||'1234';
- setDaily.value=db.settings?.daily||200;
- const fbCfg = localStorage.getItem(FB_KEY);
- if(fbCfg) setFbConfig.value = fbCfg;
+ setName.value=db.settings.name;setPin.value=db.settings.pin;setDaily.value=db.settings.daily;
+ if(document.getElementById('fbDbUrl')) fbDbUrl.value = db.settings.dbUrl || '';
  if(!cDate.value)cDate.value=today();
 }
-
 nav();
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='fmJoinDate'){const b=document.getElementById('fmId');if(b&&!b.disabled)b.value='M-'+e.target.value.replaceAll('-','')}});
 renderAll();
 cMember.onchange=()=>updateCollectionDefaults();
 updateCollectionDefaults();
-
-// স্টার্টআপে ফায়ারবেস কানেক্ট
 initFirebase();
-
-window.addEventListener('online',()=>{
-  const st = document.getElementById('syncState');
-  if(st && dbRef) { st.textContent = '● Live Synced'; st.style.color = '#86efac'; }
-});
-window.addEventListener('offline',()=>{
-  const st = document.getElementById('syncState');
-  if(st) { st.textContent = '● Offline Store'; st.style.color = '#fff'; }
-});
 </script>
 </body>
 </html>
