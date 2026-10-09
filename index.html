@@ -124,7 +124,7 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-ra
 <section id="settings" class="page">
  <div class="section-title">Settings & Online Sync</div>
  <div class="card">
-  <div class="notice">অনলাইন লাইভ সিঙ্ক সক্রিয় করতে নিচে Firebase Database URL দিন। নেট না থাকলে ডেটা অফলাইনে সেভ থাকবে এবং নেট পাওয়া মাত্রই সব পিসিতে লাইভ আপডেট হয়ে যাবে।</div>
+  <div class="notice">অফলাইন এবং অনলাইনের সমস্ত ডেটা সুরক্ষিত ও স্থায়ী থাকবে। একাধিক পিসিতে লাইভ পেতে নিচে Firebase Database URL দিন।</div>
   <div class="formgrid">
    <div class="field"><label>সমিতির নাম</label><input id="setName"></div>
    <div class="field"><label>Admin PIN</label><input id="setPin" type="password"></div>
@@ -155,6 +155,37 @@ const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(
 let fbRef = null;
 let isRemoteUpdating = false;
 
+// দুটি ডেটাবেসের তথ্য একসাথে মার্জ করার নিরাপদ ফাংশন যাতে আগের কোনো ডেটা ডিলিট না হয়
+function mergeDatabases(local, remote) {
+  if (!remote) return local;
+  const merged = {
+    members: [...(local.members || [])],
+    loans: [...(local.loans || [])],
+    savings: [...(local.savings || [])],
+    tx: [...(local.tx || [])],
+    settings: Object.assign({}, local.settings || {}, remote.settings || {})
+  };
+
+  const mergeList = (target, source) => {
+    (source || []).forEach(item => {
+      if (!item || !item.id) return;
+      const idx = target.findIndex(t => t.id === item.id);
+      if (idx === -1) {
+        target.push(item);
+      } else {
+        target[idx] = Object.assign({}, target[idx], item);
+      }
+    });
+  };
+
+  mergeList(merged.members, remote.members);
+  mergeList(merged.loans, remote.loans);
+  mergeList(merged.savings, remote.savings);
+  mergeList(merged.tx, remote.tx);
+
+  return merged;
+}
+
 function initFirebase() {
   const url = (db.settings && db.settings.dbUrl) ? db.settings.dbUrl.trim() : '';
   if (!url) return;
@@ -163,22 +194,29 @@ function initFirebase() {
       firebase.initializeApp({ databaseURL: url });
     }
     fbRef = firebase.database().ref('shivam_data');
-    
-    // রিয়েলটাইম ডেটা রিসিভ (কম্পিউটার ও পিসির লাইভ আপডেট)
+
+    // ক্লাউড ডেটা এলে সরাসরি না মুছে মার্জ করা হবে
     fbRef.on('value', snapshot => {
-      const data = snapshot.val();
-      if (data) {
+      const remoteData = snapshot.val();
+      if (remoteData) {
         isRemoteUpdating = true;
-        db = data;
+        db = mergeDatabases(db, remoteData);
         localStorage.setItem(KEY, JSON.stringify(db));
         renderAll();
         isRemoteUpdating = false;
+        
+        // মার্জ করা সম্পূর্ণ ডেটা ক্লাউডে ফিরিয়ে দিয়ে নিশ্চিত করা
+        fbRef.update(db);
         syncState.textContent = '● Live Synced';
         syncState.style.color = '#bbf7d0';
+      } else {
+        // ক্লাউড যদি একদম খালি থাকে, তবে লোকাল ডেটা মুছে ফেলা হবে না; ক্লাউডে পাঠিয়ে দেওয়া হবে
+        if (db.members.length > 0 || db.tx.length > 0) {
+          fbRef.set(db);
+        }
       }
     });
 
-    // কানেকশন স্টেট মনিটর
     firebase.database().ref('.info/connected').on('value', snap => {
       if (snap.val() === true) {
         syncState.textContent = '● Online • Live';
@@ -194,12 +232,13 @@ function initFirebase() {
 }
 
 function save(){
+  // সর্বদা প্রথমে লোকাল স্টোরেজে স্থায়ী সংরক্ষণ
   localStorage.setItem(KEY, JSON.stringify(db));
   renderAll();
-  
-  // ক্লাউডে অটো-সিঙ্ক (নেট না থাকলে Firebase কিউতে জমা রেখে নেট পেলে পুশ করবে)
+
+  // অনলাইন থাকলে ব্যাকগ্রাউন্ডে ক্লাউডে পুশ, না থাকলে অফলাইনে জমা থাকবে
   if (fbRef && !isRemoteUpdating) {
-    fbRef.set(db).catch(e => console.log('Offline queue stored'));
+    fbRef.set(db).catch(e => console.log('Stored offline in queue'));
   }
 }
 
@@ -340,11 +379,16 @@ function saveSettings(){
   db.settings.dbUrl=(fbDbUrl.value||'').trim();
   save();
   initFirebase();
-  alert('Settings saved! সিঙ্ক চালু হয়েছে।');
+  alert('Settings saved! সিঙ্ক সক্রিয় হয়েছে।');
 }
 function exportBackup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shivam-samiti-backup-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)}
 function importBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.members||!x.tx)throw 1;db=x;save();alert('Backup restored')}catch{alert('ভুল backup file')}};r.readAsText(f)}
-function clearAll(){if(prompt('সব data মুছতে Admin PIN দিন')!==db.settings.pin)return alert('ভুল PIN');localStorage.removeItem(KEY);location.reload()}
+function clearAll(){
+  if(prompt('সব data মুছতে Admin PIN দিন')!==db.settings.pin)return alert('ভুল PIN');
+  localStorage.removeItem(KEY);
+  if(fbRef) fbRef.remove();
+  location.reload();
+}
 function renderAll(){
  fillSelects();renderMembers();renderTx();renderLoans();renderSavings();schedules();renderDash();renderStatement();
  setName.value=db.settings.name;setPin.value=db.settings.pin;setDaily.value=db.settings.daily;
