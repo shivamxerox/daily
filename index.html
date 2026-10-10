@@ -11,28 +11,27 @@
 <meta name="description" content="শিবম সমিতি — Daily Collection, Savings, Loan & Statement Manager">
 <title>শিবম সমিতি — Collection Manager</title>
 
-<!-- Fonts: Noto Sans Bengali & Cinzel/Philosopher for spiritual elegance -->
+<!-- Fonts: Noto Sans Bengali & Hind Siliguri -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  /* Hindu Traditional Spiritual Palette (Bhagwa / Saffron / Golden Marigold / Deep Red) */
-  --p: #b43403;         /* Deep Sacral Saffron-Red (গেরুয়া-রক্তাভ) */
-  --p2: #ea580c;        /* Vibrant Saffron Orange */
-  --p-light: #ffedd5;  /* Soft Warm Saffron Cream */
-  --gold: #d97706;     /* Marigold Gold */
+  --p: #b43403;
+  --p2: #ea580c;
+  --p-light: #ffedd5;
+  --gold: #d97706;
   --gold-glow: #f59e0b;
-  --bg: #fffbf5;        /* Sandalwood / Chandan Warm Background */
+  --bg: #fffbf5;
   --card: #ffffff;
-  --text: #2c1810;      /* Deep Rudraksha Brown */
-  --muted: #78350f;     /* Warm Teracotta Muted */
-  --ok: #15803d;        /* Auspicious Green */
-  --warn: #b45309;      /* Haldi/Amber */
-  --bad: #b91c1c;       /* Sindoor Red */
-  --line: #fed7aa;      /* Gentle Saffron Border */
-  --shiva-blue: #0284c7;/* Neelkanth Touch */
+  --text: #2c1810;
+  --muted: #78350f;
+  --ok: #15803d;
+  --warn: #b45309;
+  --bad: #b91c1c;
+  --line: #fed7aa;
+  --shiva-blue: #0284c7;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -54,7 +53,6 @@ input,select,textarea{user-select:auto}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;border:0}
 
-/* Divine Background Atmosphere */
 .divine-aura {
   position: fixed;
   top: -120px;
@@ -83,7 +81,6 @@ button{cursor:pointer;border:0}
   padding-bottom:calc(78px + var(--safe-bottom));
 }
 
-/* Header with Shiva & Om aesthetics */
 header{
   background: linear-gradient(135deg, #7c2d12 0%, #b43403 40%, #ea580c 85%, #f59e0b 100%);
   color:#fff;
@@ -107,7 +104,6 @@ header{
   gap:10px;
 }
 
-/* Animated Shiva Avatar Badge */
 .shiva-avatar {
   width: 46px;
   height: 46px;
@@ -182,7 +178,6 @@ header{
 .status-pill.offline{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
 .status-pill.syncing{background:#fef3c7;color:#78350f;border-color:#fde047}
 
-/* Desktop Navigation */
 nav.desktop-nav{
   display:flex;
   gap:8px;
@@ -210,7 +205,6 @@ nav.desktop-nav button.active, nav.desktop-nav button:hover{
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Mobile Bottom Navigation Bar */
 .bottom-nav{
   display:none;
   position:fixed;
@@ -236,15 +230,15 @@ nav.desktop-nav button.active, nav.desktop-nav button:hover{
   align-items:center;
   justify-content:center;
   gap:3px;
-  padding:6px 10px;
+  padding:6px 8px;
   border-radius:12px;
   color:#9a3412;
   font-size:11px;
   font-weight:700;
-  min-width:58px;
+  min-width:52px;
   transition: all .2s;
 }
-.bnav-btn svg{width:22px;height:22px;fill:currentColor;transition: transform .2s;}
+.bnav-btn svg{width:20px;height:20px;fill:currentColor;transition: transform .2s;}
 .bnav-btn:active svg { transform: scale(0.9); }
 .bnav-btn.active{
   color: #fff;
@@ -253,7 +247,6 @@ nav.desktop-nav button.active, nav.desktop-nav button:hover{
 }
 .bnav-btn.active svg{ fill: #fff; }
 
-/* Main Content */
 main{padding:16px;flex:1}
 .page{display:none}
 .page.active{display:block;animation:divineFadeIn .3s cubic-bezier(0.16, 1, 0.3, 1)}
@@ -262,7 +255,6 @@ main{padding:16px;flex:1}
   to{opacity:1;transform:translateY(0)}
 }
 
-/* Spiritual Hero Banner in Dashboard */
 .shiva-hero-card {
   background: linear-gradient(135deg, #451a03 0%, #78350f 40%, #b43403 80%, #ea580c 100%);
   border-radius: 20px;
@@ -279,7 +271,7 @@ main{padding:16px;flex:1}
   overflow: hidden;
 }
 .shiva-hero-card::after {
-  content: 'ॐ नमः शिवाय';
+  content: 'ॐ नमঃ शिवाय';
   position: absolute;
   right: -10px;
   bottom: -15px;
@@ -328,9 +320,7 @@ main{padding:16px;flex:1}
   position:relative;
   transition: transform .15s ease, box-shadow .15s ease;
 }
-.card:hover{
-  border-color: #fdba74;
-}
+.card:hover{border-color: #fdba74;}
 .metric .label{color:var(--muted);font-size:13.5px;font-weight:600}
 .metric .value{font-size:26px;font-weight:800;margin-top:4px;color:var(--p);letter-spacing:-0.5px}
 .metric small{color:#9a3412;font-size:12px;font-weight:500}
@@ -346,7 +336,6 @@ main{padding:16px;flex:1}
   color: #7c2d12;
 }
 
-/* Buttons and Inputs */
 .btn{
   padding:10px 16px;
   border-radius:12px;
@@ -362,30 +351,12 @@ main{padding:16px;flex:1}
   transition:filter .2s, transform .1s, box-shadow .2s;
 }
 .btn:active{transform:scale(0.97)}
-.btn.secondary{
-  background: #ffedd5;
-  color: #9a3412;
-  border: 1px solid #fed7aa;
-  box-shadow: none;
-}
-.btn.ok{
-  background: linear-gradient(135deg, #15803d, #16a34a);
-  box-shadow: 0 3px 8px rgba(22, 163, 74, 0.25);
-}
-.btn.warn{
-  background: linear-gradient(135deg, #b45309, #d97706);
-  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.25);
-}
-.btn.danger{
-  background: linear-gradient(135deg, #991b1b, #dc2626);
-  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
-}
+.btn.secondary{background: #ffedd5;color: #9a3412;border: 1px solid #fed7aa;box-shadow: none;}
+.btn.ok{background: linear-gradient(135deg, #15803d, #16a34a);box-shadow: 0 3px 8px rgba(22, 163, 74, 0.25);}
+.btn.warn{background: linear-gradient(135deg, #b45309, #d97706);box-shadow: 0 3px 8px rgba(217, 119, 6, 0.25);}
+.btn.danger{background: linear-gradient(135deg, #991b1b, #dc2626);box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);}
 .btn.gray{background:#f1f5f9;color:#334155;box-shadow:none}
-.btn.whatsapp{
-  background: linear-gradient(135deg, #15803d, #25D366);
-  color:#ffffff;
-  box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);
-}
+.btn.whatsapp{background: linear-gradient(135deg, #15803d, #25D366);color:#ffffff;box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);}
 .btn.icon-only{padding:8px 10px;border-radius:10px}
 
 input,select,textarea{
@@ -406,7 +377,6 @@ input:focus,select:focus,textarea:focus{
 .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .field label{display:block;font-weight:700;font-size:13.5px;margin:0 0 5px;color:#78350f}
 
-/* Tables */
 .tablewrap{
   overflow-x:auto;
   border:1px solid #fed7aa;
@@ -432,15 +402,11 @@ input:focus,select:focus,textarea:focus{
 
 .search{max-width:450px}
 .notice{padding:12px 14px;border-radius:12px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;margin:12px 0;font-size:13.5px}
-.notice-tip{background:#fefce8;color:#854d0e;border:1px solid #fef08a;padding:10px 14px;border-radius:12px;margin:10px 0;font-size:13px}
+.notice-projection{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;padding:14px;border-radius:14px;margin:12px 0;font-size:14px}
 .list{display:grid;gap:10px}
 .item{padding:12px;background:white;border:1px solid #ffedd5;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,0.02)}
 
-/* Quick Member Selector Box */
-.member-quick-box{
-  position:relative;
-  margin-bottom:8px;
-}
+.member-quick-box{position:relative;margin-bottom:8px}
 .member-quick-dropdown{
   position:absolute;
   top:100%;
@@ -474,7 +440,6 @@ input:focus,select:focus,textarea:focus{
   font-weight:600;
 }
 
-/* Modals */
 .modal{position:fixed;inset:0;background:rgba(67, 20, 7, 0.6);display:none;align-items:center;justify-content:center;padding:14px;z-index:60;backdrop-filter:blur(4px)}
 .modal.show{display:flex}
 .modalbox{
@@ -494,7 +459,6 @@ input:focus,select:focus,textarea:focus{
 .summary-box{background:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:12px;margin-bottom:12px;color:#166534}
 .summary-box-loan{background:#fefce8;border:1px solid #fef08a;padding:12px;border-radius:12px;margin-bottom:12px;color:#854d0e}
 
-/* Quick shortcut actions bar on mobile */
 .quick-actions-bar {
   display: flex;
   gap: 8px;
@@ -520,7 +484,23 @@ input:focus,select:focus,textarea:focus{
 }
 .quick-pill-btn:active { background: #ffedd5; }
 
-/* Mobile Optimization */
+.note-item {
+  border-left: 4px solid var(--p2);
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  border-top: 1px solid #fed7aa;
+  border-right: 1px solid #fed7aa;
+  border-bottom: 1px solid #fed7aa;
+  margin-bottom: 10px;
+}
+.note-item.done {
+  border-left-color: #16a34a;
+  background: #f8fafc;
+  opacity: 0.85;
+}
+.note-item.done h4 { text-decoration: line-through; }
+
 @media(max-width:900px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .formgrid{grid-template-columns:repeat(2,1fr)}
@@ -543,50 +523,30 @@ input:focus,select:focus,textarea:focus{
   .shiva-hero-card .hero-content p { font-size: 12px; }
   .hero-badge-art { width: 50px; height: 50px; }
 }
-
-/* Mahadev-inspired visual polish; existing controls and layout remain intact */
-:root{--mahadev-saffron:#e85d04;--mahadev-deep:#64240d;--mahadev-gold:#ffc857;--mahadev-cream:#fff8ef}
-body{background:radial-gradient(ellipse at 50% -15%,rgba(255,200,87,.20),transparent 42%),linear-gradient(180deg,#fff6e8 0%,#fffaf5 52%,#fff3e3 100%)}
-header,.header,.topbar,.app-header,.head{background-image:linear-gradient(115deg,#70280e 0%,#b83b06 48%,#f07808 100%)}
-.shiva-hero-card{background:linear-gradient(115deg,#54200d 0%,#9d3508 58%,#e85d04 100%);border:1px solid rgba(255,200,87,.5);box-shadow:0 12px 28px rgba(105,39,8,.16)}
-.card,.panel,.stat-card{border-color:#ffd3a0;box-shadow:0 5px 16px rgba(112,40,14,.045)}
-button,.btn{transition:transform .16s ease,box-shadow .16s ease}
-button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(112,40,14,.16)}
-:focus-visible{outline:3px solid rgba(255,190,65,.9);outline-offset:2px}
-@media(max-width:600px){body{padding-bottom:env(safe-area-inset-bottom)}.container,.app,.wrap{width:100%;max-width:100%;border-radius:0}.shiva-hero-card{border-radius:16px}}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-<!-- Decorative subtle spiritual glowing background -->
 <div class="divine-aura"></div>
 
 <div class="app">
 <header>
   <div class="head">
     <div class="brand-box">
-      <!-- High-Quality Vector Emblem of Lord Shiva with Crescent Moon & Third Eye -->
       <div class="shiva-avatar" title="হর হর মহাদেব">
         <svg viewBox="0 0 64 64">
-          <!-- Trishul & Damru Motif with Crescent Moon -->
           <path d="M32 4 C31 4 30.2 4.6 30.2 5.5 L30.2 16 C25 17 21 21 21 26 C21 28.5 22 30.5 23.5 32 C22 33.5 21 35.5 21 38 C21 43 25 47 30.2 48 L30.2 59.5 C30.2 60.5 31 61.2 32 61.2 C33 61.2 33.8 60.5 33.8 59.5 L33.8 48 C39 47 43 43 43 38 C43 35.5 42 33.5 40.5 32 C42 30.5 43 28.5 43 26 C43 21 39 17 33.8 16 L33.8 5.5 C33.8 4.6 33 4 32 4 Z" fill="rgba(255,255,255,0.2)"/>
-          <!-- Trishul Center Blade -->
           <path d="M32 8 L35 18 L29 18 Z" fill="#ffffff"/>
-          <!-- Left Blade -->
           <path d="M22 13 C22 13 25 16 25 21 L22 21 C22 17 19.5 15 19.5 15 Z" fill="#ffffff"/>
-          <!-- Right Blade -->
           <path d="M42 13 C42 13 39 16 39 21 L42 21 C42 17 44.5 15 44.5 15 Z" fill="#ffffff"/>
-          <!-- Trishul Base Ring -->
           <line x1="22" y1="21" x2="42" y2="21" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
           <line x1="32" y1="18" x2="32" y2="58" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-          <!-- Tripundra (Three Sacred White Lines) & Third Eye -->
           <line x1="26" y1="31" x2="38" y2="31" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
           <line x1="25" y1="33.5" x2="39" y2="33.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
           <line x1="26" y1="36" x2="38" y2="36" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
           <circle cx="32" cy="33.5" r="1.3" fill="#ea580c"/>
-          <!-- Damru Central Wrap -->
           <polygon points="28,42 36,42 32,46" fill="#fef08a"/>
           <polygon points="28,50 36,50 32,46" fill="#fef08a"/>
         </svg>
@@ -605,15 +565,15 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
     </div>
   </div>
 
-  <!-- Desktop Navigation -->
   <nav class="desktop-nav" id="desktopNav">
     <button class="active" data-page="dash">📊 Dashboard</button>
     <button data-page="members">👥 সদস্য</button>
     <button data-page="collect">💰 দৈনিক কালেকশন</button>
     <button data-page="loans">🏦 লোন</button>
     <button data-page="savings">💎 সেভিং</button>
-    <button data-page="schedule">📅 Schedule</button>
+    <button data-page="schedule">📅 Schedule & পূর্বাভাস</button>
     <button data-page="statement">📄 Statement</button>
+    <button data-page="notepad">📝 নোটপ্যাড (ব্যক্তিগত)</button>
     <button data-page="settings">⚙️ Settings</button>
   </nav>
 </header>
@@ -621,7 +581,6 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
 <main>
 <!-- 1. DASHBOARD -->
 <section id="dash" class="page active">
-  <!-- Divine Hero Banner -->
   <div class="shiva-hero-card">
     <div class="hero-content">
       <h3>🔱 শ্রী শ্রী শিবায় নমঃ</h3>
@@ -632,7 +591,6 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
     </div>
   </div>
 
-  <!-- Mobile Quick Action Shortcuts -->
   <div class="quick-actions-bar">
     <button class="quick-pill-btn" onclick="document.querySelector('[data-page=\'collect\']').click()">
       <span>💰</span> দ্রুত কালেকশন
@@ -640,18 +598,18 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
     <button class="quick-pill-btn" onclick="openMember()">
       <span>➕</span> নতুন সদস্য
     </button>
-    <button class="quick-pill-btn" onclick="document.querySelector('[data-page=\'statement\']').click()">
-      <span>📄</span> Statement
-    </button>
     <button class="quick-pill-btn" onclick="document.querySelector('[data-page=\'schedule\']').click()">
-      <span>🔔</span> Schedule
+      <span>🔮</span> ৩০ দিনের পূর্বাভাস
+    </button>
+    <button class="quick-pill-btn" onclick="document.querySelector('[data-page=\'notepad\']').click()">
+      <span>📝</span> নোটপ্যাড
     </button>
   </div>
 
   <div class="section-title">আজকের Dashboard</div>
   <div class="grid">
     <div class="card metric"><div class="label">আজকের মোট কালেকশন</div><div class="value" id="mToday">₹0</div><small>আজকের Savings + Loan</small></div>
-    <div class="card metric"><div class="label">মোট হাতে নগদ</div><div class="value" id="mCash">₹0</div><small>লেনদেনের পর বর্তমান cash</small></div>
+    <div class="card metric"><div class="label">মোট হাতে নগদ</div><div class="value" id="mCash">₹0</div><small>কালেকশন বিয়োগ ম্যাচিউরিটি খরচ</small></div>
     <div class="card metric"><div class="label">চলমান লোন</div><div class="value" id="mLoans">0</div><small>Active loan accounts</small></div>
     <div class="card metric"><div class="label">চলমান সেভিং</div><div class="value" id="mSavings">0</div><small>Active savings accounts</small></div>
   </div>
@@ -675,7 +633,7 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
   </div>
 </section>
 
-<!-- 3. DAILY COLLECTION (WITH MEMBER SEARCH & AUTO-HIDE COMPLETED) -->
+<!-- 3. DAILY COLLECTION -->
 <section id="collect" class="page">
   <div class="section-title">দৈনিক টাকা কালেকশন</div>
   
@@ -685,7 +643,6 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
       <div id="paidCountNotice" class="badge-hidden">আজকে ০ জন পরিশোধ করেছে</div>
     </div>
 
-    <!-- Live Search Input for Fast Selection -->
     <div class="member-quick-box">
       <input type="text" id="cSearchInput" placeholder="🔍 সদস্যের নাম / মোবাইল বা ID লিখে নির্বাচন করুন..." oninput="searchQuickMember(this.value)" onfocus="searchQuickMember(this.value)">
       <div id="cSearchDropdown" class="member-quick-dropdown"></div>
@@ -697,7 +654,7 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
         <select id="cMember" onchange="onSelectMemberChange()"></select>
       </div>
       <div class="field"><label>Loan কিস্তি</label><input id="cLoanAmount" type="number" min="0" step="1" value="0" oninput="updateCombinedPayment()"></div>
-      <div class="field"><label>Savings জমা</label><input id="cSavingAmount" type="number" min="0" step="1" value="0" oninput="updateCombinedPayment()"></div>
+      <div class="field"><label>Savings জমা (চলমান অ্যাকাউন্টে)</label><input id="cSavingAmount" type="number" min="0" step="1" value="0" oninput="updateCombinedPayment()"></div>
       <div class="field"><label>মোট Payment</label><input id="cAmount" type="number" min="0" step="1" readonly style="font-weight:800;color:var(--ok)"></div>
       <div class="field"><label>জমার তারিখ (মডিফাই করা যাবে)</label><input id="cDate" type="date" onchange="onDateChanged()"></div>
       <div class="field"><label>পেমেন্ট মাধ্যম</label><select id="cMethod"><option>Cash</option><option>QR</option><option>Bank</option></select></div>
@@ -732,20 +689,51 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
 <!-- 4. LOANS -->
 <section id="loans" class="page">
   <div class="row between"><div class="section-title">Loan Accounts</div><button class="btn" onclick="openLoan()">+ নতুন Loan</button></div>
-  <div class="notice">নিয়ম: উদাহরণস্বরূপ ₹10,000 Loan হলে 100 কিস্তি × ₹110 = ₹11,000। অর্থাৎ মোট payable = principal-এর 110% (১০% মার্জিন)।</div>
+  <div class="notice">নিয়ম: উদাহরণস্বরূপ ₹10,000 Loan হলে 100 কিস্তি × ₹110 = ₹11,000। অর্থাৎ মোট payable = principal-এর 110% (১০% মার্জিন)।[cite: 1]</div>
   <div class="tablewrap"><table class="table"><thead><tr><th>Account</th><th>সদস্য</th><th>Loan</th><th>মার্জিন (লাভ)</th><th>প্রতি কিস্তি</th><th>পরিশোধ</th><th>বাকি</th><th>শেষ তারিখ</th><th>Status</th><th>Action</th></tr></thead><tbody id="loanRows"></tbody></table></div>
 </section>
 
 <!-- 5. SAVINGS -->
 <section id="savings" class="page">
   <div class="row between"><div class="section-title">Savings Accounts</div><button class="btn" onclick="openSaving()">+ নতুন Savings</button></div>
-  <div class="notice">ম্যাচুরিটি: Savings শুরুর তারিখ থেকে 360 দিন পরে মোট আসলের উপর 6% যোগ হবে। 360 দিনের আগে তুলে নিলে শুধু আসল ফেরত হবে। 360 দিন পরে schedule-এ দেখাবে।</div>
+  <div class="notice">ম্যাচুরিটি: Savings শুরুর তারিখ থেকে 360 দিন পূর্ণ হলে অ্যাকাউন্টটি শিডিউলে চলে যাবে এবং নতুন সেভিংস স্বয়ংক্রিয়ভাবে চালু হবে। শিডিউল থেকে টাকা পরিশোধ করলে ক্যাশ থেকে মাইনাস হবে।[cite: 1]</div>
   <div class="tablewrap"><table class="table"><thead><tr><th>Account</th><th>সদস্য</th><th>শুরু</th><th>জমা</th><th>ম্যাচুরিটি</th><th>ম্যাচুরিটি মূল্য</th><th>Status</th><th>Action</th></tr></thead><tbody id="savingRows"></tbody></table></div>
 </section>
 
-<!-- 6. SCHEDULE -->
+<!-- 6. SCHEDULE & 30-DAY FORECAST -->
 <section id="schedule" class="page">
-  <div class="section-title">Schedule List & Account Margins</div>
+  <div class="section-title">Schedule List & ৩০ দিনের সম্ভাব্য আর্থিক পূর্বাভাস</div>
+
+  <div class="card" style="border: 2px solid #fdba74; margin-bottom: 16px;">
+    <h3 style="margin:0 0 10px;color:var(--p)">🔮 আগামী ৩০ দিনের সম্ভাব্য হিসাব ও প্রস্তুতি (Forecast)</h3>
+    <div class="grid">
+      <div class="card metric" style="background:#f0fdf4;">
+        <div class="label" style="color:#166534">সম্ভাব্য কালেকশন (৩০ দিন)</div>
+        <div class="value" id="fcCollect" style="color:#16a34a">₹0</div>
+        <small style="color:#15803d">দৈনিক কিস্তি ও সেভিংস অনুযায়ী</small>
+      </div>
+      <div class="card metric" style="background:#fffbeb;">
+        <div class="label" style="color:#854d0e">চলতি মাসে শেষ হবে (লোন)</div>
+        <div class="value" id="fcLoanCount" style="color:#d97706">0 টি লোন</div>
+        <small id="fcLoanSum" style="color:#b45309">বাকি মোট ₹0 আসবে</small>
+      </div>
+      <div class="card metric" style="background:#fef2f2;">
+        <div class="label" style="color:#991b1b">ম্যাচিউরিটি দিতে হতে পারে</div>
+        <div class="value" id="fcMaturingAmount" style="color:#dc2626">₹0</div>
+        <small id="fcMaturingCount" style="color:#b91c1c">আগামী ৩০-৬০ দিনে 0 জন</small>
+      </div>
+      <div class="card metric" style="background:#eff6ff;">
+        <div class="label" style="color:#1e40af">ফান্ড প্রস্তুতি ও রি-লোন গ্যাপ</div>
+        <div class="value" style="color:#2563eb;font-size:20px">১৫ - ২০ দিন আগে</div>
+        <small style="color:#1d4ed8">লোন শেষের ৭ দিন পর নতুন লোন</small>
+      </div>
+    </div>
+
+    <div class="notice-projection" id="fcDetailedInsight" style="margin-top:14px">
+      লোড হচ্ছে...
+    </div>
+  </div>
+
   <div class="grid">
     <div class="card">
       <b>🔔 Loan: শেষ হতে ৫ দিন বা কম</b>
@@ -753,14 +741,14 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
       <div id="loanSchedule" class="list" style="margin-top:10px"></div>
     </div>
     <div class="card">
-      <b>🔔 Savings: ৩৬০ দিন পার</b>
+      <b>🔔 Savings: ৩৬০ দিন পার (শিডিউলে স্থানান্তর ও পরিশোধ)</b>
       <div id="savingScheduleSummary" style="margin-top:10px"></div>
       <div id="savingSchedule" class="list" style="margin-top:10px"></div>
     </div>
   </div>
 </section>
 
-<!-- 7. STATEMENT & WHATSAPP SHARING -->
+<!-- 7. STATEMENT -->
 <section id="statement" class="page">
   <div class="section-title">সদস্য Statement</div>
   <div class="card">
@@ -787,11 +775,35 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
   <div id="dailyStatementOut" style="margin-top:14px"></div>
 </section>
 
-<!-- 8. SETTINGS & SYNC -->
+<!-- 8. PERSONAL NOTEPAD & SCHEDULER -->
+<section id="notepad" class="page">
+  <div class="row between">
+    <div class="section-title">📝 ব্যক্তিগত নোটপ্যাড ও শিডিউল ম্যানেজার</div>
+    <button class="btn ok" onclick="openNoteModal()">+ নতুন নোট / শিডিউল</button>
+  </div>
+  <div class="notice">
+    📌 <b>এটি সমিতির অ্যাকাউন্ট থেকে সম্পূর্ণ আলাদা।</b> এখানে আপনার নিজের ব্যক্তিগত হিসাব, পাওনা/দেনা বা জরুরি কাজের শিডিউল লিখে রাখতে পারেন।
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="row between">
+      <input class="search" id="noteSearch" placeholder="🔍 নোট বা হিসাব খুঁজুন..." oninput="renderNotes()">
+      <select id="noteFilter" onchange="renderNotes()" style="max-width:200px">
+        <option value="all">সব নোট</option>
+        <option value="pending">বাকি / পেন্ডিং</option>
+        <option value="done">সম্পন্ন (Done)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="noteList" class="list"></div>
+</section>
+
+<!-- 9. SETTINGS -->
 <section id="settings" class="page">
   <div class="section-title">Settings & Online Sync</div>
   <div class="card">
-    <div class="notice">নেটওয়ার্ক বন্ধ থাকলেও সমস্ত ডেটা ফোনে সেভ থাকবে। নেট অন হলেই ডেটা অটোমেটিক ক্লাউডে সিঙ্ক হবে।</div>
+    <div class="notice">নেটওয়ার্ক বন্ধ থাকলেও সমস্ত ডেটা ফোনে সেভ থাকবে। নেট অন হলেই ডেটা অটোমেটিক ক্লাউডে সিঙ্ক হবে।[cite: 1]</div>
     <div class="formgrid">
       <div class="field"><label>সমিতির নাম</label><input id="setName"></div>
       <div class="field"><label>Admin PIN</label><input id="setPin" type="password"></div>
@@ -827,13 +839,13 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
       <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
       সদস্য
     </button>
-    <button class="bnav-btn" data-page="statement">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-      Statement
+    <button class="bnav-btn" data-page="schedule">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+      পূর্বাভাস
     </button>
-    <button class="bnav-btn" data-page="settings">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      Settings
+    <button class="bnav-btn" data-page="notepad">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      নোটপ্যাড
     </button>
   </div>
 </div>
@@ -842,53 +854,25 @@ button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(11
 </div>
 
 <script>
-// Inline Service Worker Blob for True Offline functionality
-if ('serviceWorker' in navigator) {
-  const swCode = `
-    const CACHE_NAME = 'shivam-samiti-cache-v2';
-    self.addEventListener('install', event => {
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', event => {
-      event.waitUntil(clients.claim());
-    });
-    self.addEventListener('fetch', event => {
-      // Offline-first strategy for app resources
-      if (event.request.method !== 'GET') return;
-      event.respondWith(
-        fetch(event.request)
-          .then(networkResponse => {
-            const resClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
-            return networkResponse;
-          })
-          .catch(() => caches.match(event.request))
-      );
-    });
-  `;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(e => console.log('SW Registration bypassed:', e));
-}
-</script>
-
-<script>
 const KEY='shivam_samiti_v1';
-let db=JSON.parse(localStorage.getItem(KEY)||'{"members":[],"loans":[],"savings":[],"tx":[],"settings":{"name":"শিবম সমিতি","pin":"1234","daily":200,"dbUrl":""}}');
+const NOTE_KEY='shivam_personal_notes_v1';
+
+let db=JSON.parse(localStorage.getItem(KEY)||'{"members":[],"loans":[],"savings":[],"tx":[],"settings":{"name":"শিবম সমিতি","pin":"1234","daily":200,"dbUrl":""},"rosterInitialized":false}');
+let notes=JSON.parse(localStorage.getItem(NOTE_KEY)||'[]');
 
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const iso=d=>{let x=new Date(d);return new Date(x.getTime()-x.getTimezoneOffset()*60000).toISOString().slice(0,10)};
 
-// Initial roster: imported only when this browser has no saved members; existing data is never replaced.
-if(!Array.isArray(db.members)) db.members=[];
-if(db.members.length===0){
+if(!db.rosterInitialized && (!db.members || db.members.length===0)){
  const originalRoster=['গৌতম বর্মণ','অভিজিৎ বর্মণ','দিলীপ বর্মণ','সঞ্জিত অধিকারী','সহদেব সরকার','বাপি বর্মণ','নিমাই বর্মণ','হেন বর্মণ','প্রশান্ত বর্মণ','অভিষেক বর্মণ'];
  originalRoster.forEach((name,i)=>db.members.push({
    id:'M-20230508-'+String(i+1).padStart(2,'0'),
    name,mobile:'',joinDate:'2023-05-08',dailySaving:Number(db.settings?.daily||200),address:''
  }));
+ db.rosterInitialized = true;
  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
 }
+
 const today=()=>iso(new Date());
 const addDays=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return iso(x)};
 const daysBetween=(a,b)=>Math.floor((new Date(b)-new Date(a))/86400000);
@@ -897,7 +881,6 @@ const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(
 let fbRef = null;
 let isRemoteUpdating = false;
 
-// Offline & Online Network Detection
 function updateNetworkStatus() {
   const syncState = document.getElementById('syncState');
   if (!navigator.onLine) {
@@ -906,7 +889,6 @@ function updateNetworkStatus() {
   } else {
     syncState.textContent = '● অনলাইন (অটো সিঙ্ক সক্রিয়)';
     syncState.className = 'status-pill online';
-    // Automatically trigger cloud sync when internet returns
     syncToFirebase();
   }
 }
@@ -916,30 +898,13 @@ window.addEventListener('offline', updateNetworkStatus);
 function mergeDatabases(local, remote) {
   if (!remote) return local;
   const merged = {
-    members: [...(local.members || [])],
-    loans: [...(local.loans || [])],
-    savings: [...(local.savings || [])],
-    tx: [...(local.tx || [])],
-    settings: Object.assign({}, local.settings || {}, remote.settings || {})
+    members: Array.isArray(remote.members) ? remote.members : [...(local.members || [])],
+    loans: Array.isArray(remote.loans) ? remote.loans : [...(local.loans || [])],
+    savings: Array.isArray(remote.savings) ? remote.savings : [...(local.savings || [])],
+    tx: Array.isArray(remote.tx) ? remote.tx : [...(local.tx || [])],
+    settings: Object.assign({}, local.settings || {}, remote.settings || {}),
+    rosterInitialized: true
   };
-
-  const mergeList = (target, source) => {
-    (source || []).forEach(item => {
-      if (!item || !item.id) return;
-      const idx = target.findIndex(t => t.id === item.id);
-      if (idx === -1) {
-        target.push(item);
-      } else {
-        target[idx] = Object.assign({}, target[idx], item);
-      }
-    });
-  };
-
-  mergeList(merged.members, remote.members);
-  mergeList(merged.loans, remote.loans);
-  mergeList(merged.savings, remote.savings);
-  mergeList(merged.tx, remote.tx);
-
   return merged;
 }
 
@@ -960,11 +925,11 @@ function initFirebase() {
       if (remoteData) {
         isRemoteUpdating = true;
         db = mergeDatabases(db, remoteData);
+        checkAndCycleMaturedSavings();
         localStorage.setItem(KEY, JSON.stringify(db));
         renderAll();
         isRemoteUpdating = false;
         
-        fbRef.update(db);
         const syncState = document.getElementById('syncState');
         syncState.textContent = '● লাইভ সিঙ্কড';
         syncState.className = 'status-pill online';
@@ -1002,7 +967,6 @@ function syncToFirebase() {
         syncState.className = 'status-pill online';
       })
       .catch(e => {
-        console.log('Sync queued/failed:', e);
         updateNetworkStatus();
       });
   }
@@ -1018,6 +982,7 @@ function forceSync() {
 }
 
 function save(){
+  checkAndCycleMaturedSavings();
   localStorage.setItem(KEY, JSON.stringify(db));
   renderAll();
   syncToFirebase();
@@ -1026,9 +991,51 @@ function save(){
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function member(id){return db.members.find(x=>x.id===id)}
 function activeLoan(mid){return db.loans.find(x=>x.memberId===mid&&x.status==='active')}
-function activeSaving(mid){return db.savings.find(x=>x.memberId===mid&&x.status==='active')}
 
-// Fullscreen Toggle for Mobile App experience
+// Returns only the current Active savings account of a member
+function activeSaving(mid){
+  return db.savings.find(x=>x.memberId===mid&&x.status==='active');
+}
+
+// -------------------------------------------------------------
+// NEW: AUTOMATIC 360 DAYS SAVINGS ROLLOVER & RENEWAL SYSTEM
+// -------------------------------------------------------------
+function checkAndCycleMaturedSavings(){
+  let changed = false;
+  const td = today();
+  
+  (db.savings || []).forEach(s => {
+    if(s.status === 'active'){
+      let days = daysBetween(s.start, td);
+      // If 360 days or more passed, move to schedule & create new account
+      if(days >= 360){
+        s.status = 'schedule';
+        s.scheduledDate = td;
+        changed = true;
+        
+        // Check if member already has another active savings
+        let hasActive = db.savings.some(other => other.memberId === s.memberId && other.status === 'active');
+        if(!hasActive){
+          // Auto create a fresh active savings account for member starting from completion date
+          let newStartDate = s.maturity && s.maturity <= td ? s.maturity : td;
+          db.savings.push({
+            id: uid('S'),
+            memberId: s.memberId,
+            start: newStartDate,
+            maturity: addDays(newStartDate, 360),
+            status: 'active',
+            total: 0,
+            cycle: (s.cycle || 1) + 1,
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+    }
+  });
+
+  return changed;
+}
+
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(err => {
@@ -1041,7 +1048,6 @@ function toggleFullscreen() {
   }
 }
 
-// In-app Notification / Toast instead of alerts
 function showToast(msg) {
   let box = document.getElementById('app-toast');
   if(!box){
@@ -1055,7 +1061,6 @@ function showToast(msg) {
   setTimeout(() => { box.style.opacity = '0'; }, 3000);
 }
 
-// Unified Navigation Handlers
 function setupNavigation() {
   const switchPage = (target) => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1086,43 +1091,82 @@ function openMember(id){
  <div class="field"><label>নাম</label><input id="fmName" value="${esc(m.name||'')}"></div>
  <div class="field"><label>মোবাইল</label><input id="fmMobile" value="${esc(m.mobile||'')}"></div>
  <div class="field"><label>যোগদানের তারিখ</label><input id="fmJoinDate" type="date" value="${esc(m.joinDate||today())}" ></div>
- <div class="field"><label>Member ID (Automatic)</label><input id="fmId" value="${esc(m.id||'')}" placeholder="তারিখ দিলে automatic হবে" readonly></div>
+ <div class="field"><label>Member ID</label><input id="fmId" value="${esc(m.id||'')}" placeholder="তারিখ দিলে automatic হবে" readonly></div>
  <div class="field"><label>দৈনিক Savings জমা</label><input id="fmDailySaving" type="number" min="0" step="1" value="${esc(m.dailySaving ?? db.settings.daily ?? 200)}"></div>
  <div class="field"><label>ঠিকানা</label><input id="fmAddr" value="${esc(m.address||'')}"></div></div>
- <div class="row" style="margin-top:14px"><button class="btn ok" onclick="saveMember('${id||''}')">Save</button>${id?`<button class="btn danger" onclick="deleteMember('${id}')">Delete</button>`:''}</div>`);
+ <div class="row" style="margin-top:14px">
+   <button class="btn ok" onclick="saveMember('${id||''}')">Save (সংরক্ষণ)</button>
+   ${id?`<button class="btn danger" onclick="deleteMember('${id}')">Delete (মুছে ফেলুন)</button>`:''}
+ </div>`);
 }
 
-function saveMember(old){
- let name=document.getElementById('fmName').value.trim(),joinDate=document.getElementById('fmJoinDate').value;
+function saveMember(oldId){
+ let name=document.getElementById('fmName').value.trim();
+ let joinDate=document.getElementById('fmJoinDate').value;
  let mobile=document.getElementById('fmMobile').value.trim();
- if(!name)return showToast('সদস্যের নাম দিন');
- if(!joinDate)return showToast('যোগদানের তারিখ দিন');
- if(old && prompt('সদস্যের তথ্য পরিবর্তন করতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN — কোনো পরিবর্তন হয়নি');
+ let dailySaving=+document.getElementById('fmDailySaving').value||0;
+ let address=document.getElementById('fmAddr').value.trim();
+
+ if(!name) return showToast('সদস্যের নাম দিন');
+ if(!joinDate) return showToast('যোগদানের তারিখ দিন');
+
+ if(oldId) {
+   let pin = prompt('সদস্যের তথ্য পরিবর্তন করতে Admin PIN দিন');
+   if(pin !== db.settings.pin) return showToast('ভুল PIN — কোনো পরিবর্তন করা হয়নি');
+ }
+
  const normName=v=>String(v||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('bn');
  const normMobile=v=>String(v||'').replace(/\D/g,'');
- const duplicate=db.members.find(m=>m.id!==old && (normName(m.name)===normName(name) || (normMobile(mobile) && normMobile(m.mobile)===normMobile(mobile))));
+
+ const duplicate = db.members.find(m => m.id !== oldId && (
+   normName(m.name) === normName(name) || (mobile && normMobile(m.mobile) === normMobile(mobile))
+ ));
+
  if(duplicate){
-   const sv=db.savings.filter(x=>x.memberId===duplicate.id), ln=db.loans.filter(x=>x.memberId===duplicate.id);
-   const savingText=sv.length?sv.map(x=>`${x.id}: জমা ${money(x.total)} (${x.status||'—'})`).join('\n'):'কোনো সেভিং অ্যাকাউন্ট নেই';
-   const loanText=ln.length?ln.map(x=>`${x.id}: বাকি ${money(Math.max(0,x.total-x.paid))} (${x.status||'—'})`).join('\n'):'কোনো লোন অ্যাকাউন্ট নেই';
-   alert(`⚠️ একই সদস্য আগে থেকেই আছেন!\nনাম: ${duplicate.name}\nID: ${duplicate.id}\nমোবাইল: ${duplicate.mobile||'—'}\n\nসেভিং:\n${savingText}\n\nলোন:\n${loanText}\n\nনতুন করে এন্ট্রি করা হয়নি।`);
+   alert(`⚠️ একই নামের বা মোবাইলের সদস্য (${duplicate.name}) আগে থেকেই আছেন!\nআইডি: ${duplicate.id}`);
    return;
  }
- let id=old ? old : ('M-'+joinDate.replaceAll('-',''));
- if(!old && db.members.some(m=>m.id===id)){alert(`⚠️ এই তারিখের Member ID (${id}) আগে থেকেই আছে।`);return;}
- let obj={id,name,mobile,joinDate,dailySaving:+document.getElementById('fmDailySaving').value||0,address:document.getElementById('fmAddr').value.trim()};
- if(old){Object.assign(member(old),obj)}else db.members.push(obj);
- closeModal();save();
+
+ if(oldId){
+   let existing = member(oldId);
+   if(existing){
+     existing.name = name;
+     existing.mobile = mobile;
+     existing.joinDate = joinDate;
+     existing.dailySaving = dailySaving;
+     existing.address = address;
+   }
+   showToast('সদস্যের তথ্য সফলভাবে আপডেট হয়েছে!');
+ } else {
+   let newId = 'M-' + joinDate.replaceAll('-','') + '-' + Math.floor(10 + Math.random() * 90);
+   db.members.push({
+     id: newId,
+     name,
+     mobile,
+     joinDate,
+     dailySaving,
+     address
+   });
+   showToast('নতুন সদস্য সফলভাবে যোগ হয়েছে!');
+ }
+
+ closeModal();
+ save();
 }
 
 function deleteMember(id){
- if(prompt('সদস্য ও হিসাব মুছতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN — মুছে ফেলা হয়নি');
- if(!window.confirm('এই সদস্য ও তার account মুছবেন?'))return;
- db.members=db.members.filter(x=>x.id!==id);
- db.loans=db.loans.filter(x=>x.memberId!==id);
- db.savings=db.savings.filter(x=>x.memberId!==id);
- db.tx=db.tx.filter(x=>x.memberId!==id);
- closeModal();save();
+ let pin = prompt('সদস্য ও হিসাব সম্পূর্ণ মুছতে Admin PIN দিন');
+ if(pin !== db.settings.pin) return showToast('ভুল PIN — মুছে ফেলা হয়নি');
+ if(!window.confirm('সতর্কতা: এই সদস্য ও তার সমস্ত পূর্ববর্তী লোন ও সেভিংস হিসাব মুছে ফেলা হবে। নিশ্চিত?')) return;
+
+ db.members = db.members.filter(x => x.id !== id);
+ db.loans = db.loans.filter(x => x.memberId !== id);
+ db.savings = db.savings.filter(x => x.memberId !== id);
+ db.tx = db.tx.filter(x => x.memberId !== id);
+
+ closeModal();
+ save();
+ showToast('সদস্যের তথ্য সফলভাবে ডিলিট করা হয়েছে!');
 }
 
 function openLoan(mid=''){
@@ -1132,7 +1176,7 @@ function openLoan(mid=''){
  <div class="field"><label>Loan Principal</label><input id="flPrincipal" type="number" value="10000" min="1"></div>
  <div class="field"><label>শুরু তারিখ</label><input id="flDate" type="date" value="${today()}"></div>
  <div class="field"><label>কিস্তি সংখ্যা</label><input id="flInst" type="number" value="100" min="1"></div>
- </div><div class="notice">মোট repayment = principal × 1.10; প্রতি কিস্তি = মোট repayment ÷ কিস্তি সংখ্যা। (১০% মার্জিন/লাভ)।</div>
+ </div><div class="notice">মোট repayment = principal × 1.10; প্রতি কিস্তি = মোট repayment ÷ কিস্তি সংখ্যা। (১০% মার্জিন/লাভ)।[cite: 1]</div>
  <button class="btn ok" onclick="saveLoan()">Loan Account তৈরি</button>`);
 }
 
@@ -1146,13 +1190,13 @@ function saveLoan(){
 
 function openSaving(mid=''){
  let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
- openModal('নতুন Savings Account',`<div class="formgrid"><div class="field"><label>সদস্য</label><select id="fsMember">${options}</select></div><div class="field"><label>শুরু তারিখ</label><input id="fsDate" type="date" value="${today()}"></div></div><div class="notice">360 দিনে maturity = মোট saving × 1.06। 360 দিনের আগে withdrawal হলে interest = 0।</div><button class="btn ok" onclick="saveSaving()">Savings Account তৈরি</button>`);
+ openModal('নতুন Savings Account',`<div class="formgrid"><div class="field"><label>সদস্য</label><select id="fsMember">${options}</select></div><div class="field"><label>শুরু তারিখ</label><input id="fsDate" type="date" value="${today()}"></div></div><div class="notice">360 দিনে maturity = মোট saving × 1.06। 360 দিন পার হলে স্বয়ংক্রিয়ভাবে শিডিউলে যাবে এবং পরবর্তী সাইকেলের নতুন অ্যাকাউন্ট খুলবে।[cite: 1]</div><button class="btn ok" onclick="saveSaving()">Savings Account তৈরি</button>`);
 }
 
 function saveSaving(){
  let mid=fsMember.value,d=fsDate.value;
  if(!mid)return showToast('সদস্য নির্বাচন করুন');
- db.savings.push({id:uid('S'),memberId:mid,start:d,maturity:addDays(d,360),status:'active',total:0,createdAt:new Date().toISOString()});
+ db.savings.push({id:uid('S'),memberId:mid,start:d,maturity:addDays(d,360),status:'active',total:0,cycle:1,createdAt:new Date().toISOString()});
  closeModal();save();
 }
 
@@ -1214,7 +1258,7 @@ function searchQuickMember(query) {
   });
 
   if (matches.length === 0) {
-    dropdown.innerHTML = `<div style="padding:10px 14px;color:var(--muted);font-size:13px">কোনো সদস্য পাওয়া যায়নি (হতে পারে আজকে পরিশোধিত)</div>`;
+    dropdown.innerHTML = `<div style="padding:10px 14px;color:var(--muted);font-size:13px">কোনো সদস্য পাওয়া যায়নি</div>`;
     dropdown.style.display = 'block';
     return;
   }
@@ -1272,12 +1316,28 @@ function addCollection(){
  let d=document.getElementById('cDate').value||today();
  
  if(!mid) return showToast('সদস্য নির্বাচন করুন');
- if(hasPaidOnDate(mid,d)) return showToast('এই সদস্যের নির্বাচিত তারিখে ইতিমধ্যে payment আছে। পরিবর্তনের জন্য Payment History-তে Edit করুন।');
+ if(hasPaidOnDate(mid,d)) return showToast('এই সদস্যের নির্বাচিত তারিখে ইতিমধ্যে payment আছে।');
  if(loanAmt<=0 && savingAmt<=0) return showToast('Loan বা Savings-এর অন্তত একটি amount দিন');
  
- let loan=activeLoan(mid), saving=activeSaving(mid);
+ let loan=activeLoan(mid);
+ let saving=activeSaving(mid); // Always gets the newly active savings account
+
  if(loanAmt>0 && !loan) return showToast('এই সদস্যের active Loan নেই');
- if(savingAmt>0 && !saving) return showToast('এই সদস্যের active Savings নেই');
+ 
+ // If no active savings account exists, auto-create one for this member
+ if(savingAmt>0 && !saving){
+   saving = {
+     id: uid('S'),
+     memberId: mid,
+     start: d,
+     maturity: addDays(d, 360),
+     status: 'active',
+     total: 0,
+     cycle: 1,
+     createdAt: new Date().toISOString()
+   };
+   db.savings.push(saving);
+ }
  
  if(loan && loanAmt>0){
    let remain=Math.max(0,loan.total-loan.paid);
@@ -1301,7 +1361,6 @@ function closeModalSafe(){
  document.querySelectorAll('#cNote,#cAmount').forEach(x=>x.value='');
 }
 
-// Transaction History Modification
 function editTx(id){
  let t=db.tx.find(x=>x.id===id);if(!t)return;
  if(prompt('Payment History পরিবর্তন করতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN');
@@ -1310,6 +1369,13 @@ function editTx(id){
  let method=prompt('পেমেন্ট মাধ্যম (Cash / QR / Bank)',t.method||'Cash');if(method===null)return;
  a=Number(a);
  if(!Number.isFinite(a)||a<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d))return showToast('টাকা বা তারিখ সঠিক নয়');
+ 
+ if(t.type==='expense'){
+   t.amount=a;t.date=d;t.method=method;
+   showToast('Maturity ব্যয় সংশোধন হয়েছে');save();
+   return;
+ }
+
  let acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
  if(!acc)return showToast('সংশ্লিষ্ট অ্যাকাউন্ট পাওয়া যায়নি');
  if(t.type==='loan'){
@@ -1328,9 +1394,18 @@ function delTx(id){
  if(prompt('Payment History মুছতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN');
  let t=db.tx.find(x=>x.id===id);if(!t)return;
  if(!window.confirm('এই payment history মুছবেন? হিসাবও আপডেট হবে।'))return;
- let acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
- if(!acc)return showToast('সংশ্লিষ্ট অ্যাকাউন্ট পাওয়া যায়নি');
- if(t.type==='loan')acc.paid=Math.max(0,acc.paid-t.amount);else acc.total=Math.max(0,acc.total-t.amount);
+ 
+ if(t.type==='expense'){
+   let acc=db.savings.find(x=>x.id===t.accountId);
+   if(acc && acc.status==='matured'){
+     acc.status='schedule'; // Reopen to schedule if deleted
+   }
+ } else {
+   let acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
+   if(acc){
+     if(t.type==='loan')acc.paid=Math.max(0,acc.paid-t.amount);else acc.total=Math.max(0,acc.total-t.amount);
+   }
+ }
  db.tx=db.tx.filter(x=>x.id!==id);
  showToast('লেনদেন ডিলিট করা হয়েছে');
  save();
@@ -1338,13 +1413,38 @@ function delTx(id){
 
 function finishLoan(id){let l=db.loans.find(x=>x.id===id);if(!l)return;l.status='schedule';save()}
 
-function matureSaving(id,early=false){
+// -------------------------------------------------------------
+// MATURITY PAYMENT: DEDUCTS FROM TOTAL CASH AUTOMATICALLY
+// -------------------------------------------------------------
+function matureSaving(id, early=false){
  let s=db.savings.find(x=>x.id===id);if(!s)return;
- let days=daysBetween(s.start,today()),interest=days>=360?s.total*.06:0;
- if(days<360&&!window.confirm('৩৬০ দিনের আগে — শুধু আসল ফেরত হবে। Continue?'))return;
- let amount=s.total+interest;
- alert(`ফেরতযোগ্য: ${money(amount)}\nমূলধন: ${money(s.total)}\nসুদ: ${money(interest)}`);
- s.status='matured';s.closedDate=today();save();
+ let m=member(s.memberId);
+ let days=daysBetween(s.start,today());
+ let interest = days>=360 ? Math.round(s.total * 0.06) : 0;
+ if(days<360 && !window.confirm('৩৬০ দিনের আগে — শুধু আসল ফেরত হবে (কোনো সুদ ছাড়া)। চালিয়ে যাবেন?')) return;
+ 
+ let totalPayable = s.total + interest;
+ if(!window.confirm(`সদস্য: ${m?.name||''}\nমূলধন জমা: ${money(s.total)}\n৬% সুদ: ${money(interest)}\n-----------------------\nমোট পরিশোধ করবেন: ${money(totalPayable)}\n\nএই টাকা ক্যাশ থেকে বাদ দেওয়া হবে। কনফার্ম করবেন?`)) return;
+
+ // Deduct from samiti cash by recording an 'expense' payout transaction
+ db.tx.push({
+   id: uid('T'),
+   memberId: s.memberId,
+   type: 'expense',
+   amount: totalPayable,
+   date: today(),
+   method: 'Cash',
+   note: `Maturity payout: ${s.id} (আসল ${money(s.total)} + সুদ ${money(interest)})`,
+   accountId: s.id,
+   batchId: uid('B')
+ });
+
+ s.status = 'matured';
+ s.closedDate = today();
+ s.paidAmount = totalPayable;
+ 
+ showToast(`ম্যাচিউরিটি ${money(totalPayable)} পরিশোধিত ও ক্যাশ থেকে বিয়োগ হয়েছে!`);
+ save();
 }
 
 function renderMembers(){
@@ -1362,7 +1462,10 @@ function fillStatementSelect(){
 function renderTx(){
  document.getElementById('txRows').innerHTML=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{
    let m=member(t.memberId);
-   return `<tr><td>${t.date}</td><td>${esc(m?.name||'Deleted')}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td class="money">${money(t.amount)}</td><td>${esc(t.method)}</td><td><button class="btn secondary" onclick="editTx('${t.id}')">Edit</button> <button class="btn danger" onclick="delTx('${t.id}')">Delete</button></td></tr>`;
+   let badgeClass = t.type==='loan' ? 'pill ok' : (t.type==='saving' ? 'pill' : 'pill bad');
+   let typeLabel = t.type==='loan' ? 'Loan জমা' : (t.type==='saving' ? 'Savings জমা' : 'Maturity পরিশোধ (খরচ)');
+   let displayAmt = t.type==='expense' ? `<span style="color:var(--bad)">- ${money(t.amount)}</span>` : money(t.amount);
+   return `<tr><td>${t.date}</td><td>${esc(m?.name||'Deleted')}</td><td><span class="${badgeClass}">${typeLabel}</span></td><td class="money">${displayAmt}</td><td>${esc(t.method)}</td><td><button class="btn secondary" onclick="editTx('${t.id}')">Edit</button> <button class="btn danger" onclick="delTx('${t.id}')">Delete</button></td></tr>`;
  }).join('')||`<tr><td colspan="6" class="empty">লেনদেন নেই</td></tr>`;
 }
 
@@ -1386,13 +1489,50 @@ function quickLoan(mid){
 function renderSavings(){
  document.getElementById('savingRows').innerHTML=db.savings.map(s=>{
    let m=member(s.memberId),days=daysBetween(s.start,today()),val=days>=360?s.total*1.06:s.total;
-   return `<tr><td>${s.id}</td><td>${esc(m?.name||'')}</td><td>${s.start}</td><td>${money(s.total)}</td><td>${s.maturity}</td><td>${money(val)}</td><td><span class="pill ${s.status==='active'?'ok':'warn'}">${s.status}</span></td><td>${s.status==='active'?`<button class="btn warn" onclick="matureSaving('${s.id}')">Maturity/Withdraw</button>`:''}</td></tr>`;
+   let cycleTag = s.cycle ? ` (সাইকেল ${s.cycle})` : '';
+   return `<tr><td>${s.id}${cycleTag}</td><td>${esc(m?.name||'')}</td><td>${s.start}</td><td>${money(s.total)}</td><td>${s.maturity}</td><td>${money(val)}</td><td><span class="pill ${s.status==='active'?'ok':(s.status==='schedule'?'warn':'bad')}">${s.status==='active'?'Active (চলমান)':(s.status==='schedule'?'Schedule (পরিশোধের অপেক্ষায়)':'Matured (পরিশোধিত)')}</span></td><td>${s.status==='schedule'?`<button class="btn warn" onclick="matureSaving('${s.id}')">পেমেন্ট ক্লোজ করুন</button>`:(s.status==='active'?`<span style="font-size:12px;color:var(--muted)">৩৬০ দিন পরে অটো-শিডিউল হবে</span>`:'—')}</td></tr>`;
  }).join('')||`<tr><td colspan="8" class="empty">Savings নেই</td></tr>`;
 }
 
 function schedules(){
- let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(today(),l.end)<=5&&daysBetween(today(),l.end)>=0);
- let sd=db.savings.filter(s=>s.status==='active'&&daysBetween(s.start,today())>=360);
+ let td = today();
+ let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(td,l.end)<=5&&daysBetween(td,l.end)>=0);
+ 
+ // Savings in schedule status (360 days passed and waiting for maturity payout)
+ let sd=db.savings.filter(s=>s.status==='schedule');
+
+ let loansEndingNext30 = db.loans.filter(l => {
+   if (l.status !== 'active') return false;
+   let remDays = daysBetween(td, l.end);
+   return remDays >= 0 && remDays <= 30;
+ });
+ let sumLoansEndingNext30 = loansEndingNext30.reduce((sum, l) => sum + Math.max(0, l.total - l.paid), 0);
+
+ let savingsMaturingNext30 = db.savings.filter(s => {
+   if (s.status === 'matured') return false;
+   let daysPassed = daysBetween(s.start, td);
+   return daysPassed >= 330;
+ });
+ let maturingPayableSum = savingsMaturingNext30.reduce((sum, s) => sum + (s.total * 1.06), 0);
+
+ let activeLoans = db.loans.filter(l => l.status === 'active');
+ let dailyLoanExpected = activeLoans.reduce((sum, l) => sum + (l.installment || 0), 0);
+ let dailySavingExpected = db.members.reduce((sum, m) => sum + (m.dailySaving || db.settings.daily || 200), 0);
+ let total30DaysEstimatedCollection = (dailyLoanExpected + dailySavingExpected) * 30;
+
+ if(document.getElementById('fcCollect')) document.getElementById('fcCollect').textContent = money(total30DaysEstimatedCollection);
+ if(document.getElementById('fcLoanCount')) document.getElementById('fcLoanCount').textContent = `${loansEndingNext30.length} জনের লোন`;
+ if(document.getElementById('fcLoanSum')) document.getElementById('fcLoanSum').textContent = `বাকি মোট ${money(sumLoansEndingNext30)} আসবে`;
+ if(document.getElementById('fcMaturingAmount')) document.getElementById('fcMaturingAmount').textContent = money(maturingPayableSum);
+ if(document.getElementById('fcMaturingCount')) document.getElementById('fcMaturingCount').textContent = `আসন্ন ${savingsMaturingNext30.length} টি অ্যাকাউন্ট`;
+
+ let insightHtml = `
+   <b>💡 আর্থিক পরিকল্পনা ও আন্দাজ:</b><br>
+   ১. <b>আগামী ৩০ দিনের মোট সম্ভাব্য কালেকশন:</b> প্রায় <b>${money(total30DaysEstimatedCollection)}</b> (দৈনিক সেভিংস প্রায় ${money(dailySavingExpected)} + দৈনিক লোন কিস্তি প্রায় ${money(dailyLoanExpected)})।[cite: 1]<br>
+   ২. <b>লোন শেষ ও পুনরায় প্রদান গ্যাপ:</b> আগামী ৩০ দিনে <b>${loansEndingNext30.length} জন</b> সদস্যের লোন শেষ হচ্ছে। লোন সম্পূর্ণ শোধ হওয়ার <b>৩ থেকে ৭ দিন পর</b> পরবর্তী লোন ইস্যু করা সবচেয়ে নিরাপদ।[cite: 1]<br>
+   ৩. <b>সেভিংস ম্যাচিউরিটির ফান্ড প্রস্তুতি:</b> আগামী মাসে সম্ভাব্য ম্যাচিউরিটি বাবদ <b>${money(maturingPayableSum)}</b> প্রদান করতে হতে পারে। এর জন্য অন্তত <b>১৫ থেকে ২০ দিন আগে থেকেই</b> দৈনিক কালেকশনের উদ্বৃত্ত ক্যাশ ফান্ড রিজার্ভ রাখা বুদ্ধিমানের কাজ হবে।[cite: 1]
+ `;
+ if(document.getElementById('fcDetailedInsight')) document.getElementById('fcDetailedInsight').innerHTML = insightHtml;
 
  let totalActiveLoanMargin = db.loans.filter(l=>l.status==='active').reduce((sum,l)=>sum+(l.total-l.principal),0);
  let activeLoansRemaining = db.loans.filter(l=>l.status==='active').reduce((sum,l)=>sum+Math.max(0,l.total-l.paid),0);
@@ -1422,7 +1562,7 @@ function schedules(){
  document.getElementById('loanDueList').innerHTML = makeLoans(ld);
 
  let savingSummaryHtml = `<div class="summary-box">
-   <div><b>৩৬০ দিন উত্তীর্ণ মোট সেভিংস দিতে হবে:</b> ${money(totalSavingsPayable)}</div>
+   <div><b>৩৬০ দিন পূর্ণ — শিডিউলে মোট সেভিংস দিতে হবে:</b> ${money(totalSavingsPayable)}</div>
    <div style="font-size:14px;margin-top:4px">(মূল জমা: ${money(totalSavingsPrincipalToPay)} + ৬% সুদ: ${money(totalSavingsInterest)})</div>
  </div>`;
  
@@ -1432,32 +1572,39 @@ function schedules(){
  let makeSavings = arr => arr.map(x=>{
    let m=member(x.memberId);
    let days = daysBetween(x.start, today());
-   let payable = x.total * 1.06;
-   let interest = x.total * 0.06;
+   let payable = Math.round(x.total * 1.06);
+   let interest = Math.round(x.total * 0.06);
    return `<div class="item">
-     <b>${esc(m?.name||'')}</b> (${days} দিন অতিবাহিত)<br>
+     <b>${esc(m?.name||'')}</b> (${days} দিন অতিবাহিত - সাইকেল ${x.cycle||1})<br>
      জমা আসল: ${money(x.total)} • ৬% সুদ: ${money(interest)}<br>
      <b>মোট ফেরত দিতে হবে: <span style="color:var(--ok)">${money(payable)}</span></b><br>
-     <div style="margin-top:5px"><button class="btn warn" style="padding:4px 8px;font-size:14px" onclick="matureSaving('${x.id}')">পেমেন্ট ক্লোজ করুন</button> <span class="pill ok">৩৬০ দিন পার</span></div>
+     <div style="margin-top:5px"><button class="btn warn" style="padding:5px 12px;font-size:14px" onclick="matureSaving('${x.id}')">💰 পেমেন্ট ক্লোজ করুন (ক্যাশ থেকে মাইনাস)</button> <span class="pill warn">অটো-শিডিউল্ড</span></div>
    </div>`;
- }).join('') || '<div class="empty">৩৬০ দিন পার হওয়া কোনো Savings নেই</div>';
+ }).join('') || '<div class="empty">৩৬০ দিন পার হওয়া কোনো অপরিশোধিত Savings শিডিউল নেই</div>';
 
  document.getElementById('savingSchedule').innerHTML = makeSavings(sd);
  document.getElementById('saveScheduleList').innerHTML = makeSavings(sd);
 }
 
 function renderDash(){
- let td=today(),todayTotal=db.tx.filter(t=>t.date===td).reduce((s,t)=>s+t.amount,0);
- let inflow=db.tx.reduce((s,t)=>s+t.amount,0);
- document.getElementById('mToday').textContent=money(todayTotal);
- document.getElementById('mCash').textContent=money(inflow);
+ let td=today();
+ let todayCollection = db.tx.filter(t=>t.date===td && t.type!=='expense').reduce((s,t)=>s+t.amount,0);
+ 
+ // Inflow is collection (loan + saving), outflow is maturity payouts (expense)
+ let totalInflow = db.tx.filter(t=>t.type!=='expense').reduce((s,t)=>s+t.amount,0);
+ let totalOutflow = db.tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+ let currentHandCash = Math.max(0, totalInflow - totalOutflow);
+
+ document.getElementById('mToday').textContent=money(todayCollection);
+ document.getElementById('mCash').textContent=money(currentHandCash);
  document.getElementById('mLoans').textContent=db.loans.filter(x=>x.status==='active').length;
  document.getElementById('mSavings').textContent=db.savings.filter(x=>x.status==='active').length;
  document.getElementById('mMembers').textContent=db.members.length;
  
  document.getElementById('todayList').innerHTML=db.tx.filter(t=>t.date===td).slice().reverse().map(t=>{
    let m=member(t.memberId);
-   return `<div class="item">${esc(m?.name||'')} — <b>${money(t.amount)}</b> <span class="pill">${t.type}</span></div>`;
+   let isExpense = t.type==='expense';
+   return `<div class="item">${esc(m?.name||'')} — <b style="color:${isExpense?'var(--bad)':'var(--ok)'}">${isExpense?'- ':''}${money(t.amount)}</b> <span class="pill ${isExpense?'bad':'ok'}">${isExpense?'ম্যাচিউরিটি পরিশোধ':t.type}</span></div>`;
  }).join('')||'<div class="empty">আজ কোনো collection নেই</div>';
 }
 
@@ -1466,19 +1613,19 @@ function renderStatement(){
  if(!mid){document.getElementById('statementOut').innerHTML='';return}
  let m=member(mid),from=document.getElementById('stFrom').value,to=document.getElementById('stTo').value;
  let tx=db.tx.filter(t=>t.memberId===mid&&(!from||t.date>=from)&&(!to||t.date<=to)).sort((a,b)=>a.date.localeCompare(b.date));
- let sav=db.savings.filter(s=>s.memberId===mid),loan=db.loans.filter(l=>l.memberId===mid);
+ let sav=db.savings.filter(s=>s.memberId===mid && s.status==='active'),loan=db.loans.filter(l=>l.memberId===mid && l.status==='active');
  
  document.getElementById('statementOut').innerHTML=`<div class="card">
    <h2>${esc(m.name)} (${esc(m.id)})</h2>
    <div style="margin-bottom:10px;font-size:14px;color:var(--muted)">মোবাইল: ${esc(m.mobile||'—')} | ঠিকানা: ${esc(m.address||'—')}</div>
    <div class="grid">
-     <div class="card"><small>মোট Savings জমা</small><div class="value">${money(sav.reduce((x,s)=>x+s.total,0))}</div></div>
-     <div class="card"><small>Loan বাকি</small><div class="value">${money(loan.reduce((x,l)=>x+Math.max(0,l.total-l.paid),0))}</div></div>
+     <div class="card"><small>বর্তমান সক্রিয় Savings জমা</small><div class="value">${money(sav.reduce((x,s)=>x+s.total,0))}</div></div>
+     <div class="card"><small>চলতি Loan বাকি</small><div class="value">${money(loan.reduce((x,l)=>x+Math.max(0,l.total-l.paid),0))}</div></div>
    </div>
    <div class="tablewrap" style="margin-top:12px">
      <table class="table">
        <thead><tr><th>তারিখ</th><th>Account</th><th>Amount</th><th>Method</th></tr></thead>
-       <tbody>${tx.map(t=>`<tr><td>${t.date}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td>${money(t.amount)}</td><td>${t.method}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">কোনো transaction নেই</td></tr>'}</tbody>
+       <tbody>${tx.map(t=>`<tr><td>${t.date}</td><td>${t.type==='loan'?'Loan':(t.type==='saving'?'Savings':'Maturity Payout')}</td><td>${t.type==='expense'?`<span style="color:var(--bad)">- ${money(t.amount)}</span>`:money(t.amount)}</td><td>${t.method}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">কোনো transaction নেই</td></tr>'}</tbody>
      </table>
    </div>
  </div>`;
@@ -1489,17 +1636,21 @@ function renderDailyStatement(){
  const tx=db.tx.filter(t=>t.date===date).sort((a,b)=>(a.memberId||'').localeCompare(b.memberId||''));
  const loanTotal=tx.filter(t=>t.type==='loan').reduce((n,t)=>n+Number(t.amount||0),0);
  const savingTotal=tx.filter(t=>t.type==='saving').reduce((n,t)=>n+Number(t.amount||0),0);
- const rows=tx.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(member(t.memberId)?.name||'সদস্য নেই')}</td><td>${esc(t.memberId)}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td>${money(t.amount)}</td><td>${esc(t.method||'—')}</td><td>${esc(t.note||'—')}</td></tr>`).join('');
- document.getElementById('dailyStatementOut').innerHTML=`<div class="card"><h2>${esc(db.settings.name||'শিবম সমিতি')} — দৈনিক সমগ্র Statement</h2><p>তারিখ: <b>${esc(date)}</b></p><div class="grid"><div class="card"><small>মোট Loan Collection</small><div class="value">${money(loanTotal)}</div></div><div class="card"><small>মোট Savings Collection</small><div class="value">${money(savingTotal)}</div></div><div class="card"><small>মোট কালেকশন</small><div class="value">${money(loanTotal+savingTotal)}</div></div><div class="card"><small>লেনদেন সংখ্যা</small><div class="value">${tx.length}</div></div></div><div class="tablewrap"><table class="table"><thead><tr><th>তারিখ</th><th>সদস্য</th><th>ID</th><th>অ্যাকাউন্ট</th><th>টাকা</th><th>মাধ্যম</th><th>নোট</th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="empty">এই তারিখে কোনো লেনদেন নেই</td></tr>'}</tbody></table></div></div>`;
+ const expenseTotal=tx.filter(t=>t.type==='expense').reduce((n,t)=>n+Number(t.amount||0),0);
+ const netTotal = loanTotal + savingTotal - expenseTotal;
+ const rows=tx.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(member(t.memberId)?.name||'সদস্য নেই')}</td><td>${esc(t.memberId)}</td><td>${t.type==='loan'?'Loan':(t.type==='saving'?'Savings':'ম্যাচিউরিটি পরিশোধ')}</td><td>${t.type==='expense'?`<span style="color:var(--bad)">- ${money(t.amount)}</span>`:money(t.amount)}</td><td>${esc(t.method||'—')}</td><td>${esc(t.note||'—')}</td></tr>`).join('');
+ document.getElementById('dailyStatementOut').innerHTML=`<div class="card"><h2>${esc(db.settings.name||'শিবম সমিতি')} — দৈনিক সমগ্র Statement</h2><p>তারিখ: <b>${esc(date)}</b></p><div class="grid"><div class="card"><small>মোট Loan Collection</small><div class="value">${money(loanTotal)}</div></div><div class="card"><small>মোট Savings Collection</small><div class="value">${money(savingTotal)}</div></div><div class="card"><small>আজকের ম্যাচিউরিটি পরিশোধ</small><div class="value" style="color:var(--bad)">${money(expenseTotal)}</div></div><div class="card"><small>আজকের নিট ক্যাশ জমা</small><div class="value">${money(netTotal)}</div></div></div><div class="tablewrap"><table class="table"><thead><tr><th>তারিখ</th><th>সদস্য</th><th>ID</th><th>অ্যাকাউন্ট</th><th>টাকা</th><th>মাধ্যম</th><th>নোট</th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="empty">এই তারিখে কোনো লেনদেন নেই</td></tr>'}</tbody></table></div></div>`;
 }
+
 function printStatement(elementId){
  const el=document.getElementById(elementId);
  if(!el||!el.innerHTML.trim())return showToast('প্রিন্ট করার মতো Statement নেই');
  const w=window.open('','_blank');
- if(!w)return showToast('Print window আটকানো হয়েছে। Browser popup অনুমতি দিন।');
+ if(!w)return showToast('Print window আটকানো হয়েছে');
  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>Statement</title><style>body{font-family:Arial,sans-serif;padding:18px;color:#222}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;text-align:left}th{background:#f3f3f3}.grid{display:flex;gap:10px;flex-wrap:wrap}.card{padding:8px;margin:6px 0}button{display:none}</style></head><body>'+el.innerHTML+'</body></html>');
  w.document.close();w.focus();setTimeout(()=>w.print(),300);
 }
+
 function downloadStatement(elementId,filename){
  const el=document.getElementById(elementId);
  if(!el||!el.innerHTML.trim())return showToast('ডাউনলোড করার মতো Statement নেই');
@@ -1507,6 +1658,7 @@ function downloadStatement(elementId,filename){
  const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
  a.href=url;a.download=filename+'-'+today()+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+
 function sendWhatsAppStatement() {
   const mid = document.getElementById('stMember').value;
   if (!mid) return showToast('আগে একজন সদস্য নির্বাচন করুন');
@@ -1517,8 +1669,8 @@ function sendWhatsAppStatement() {
   const to = document.getElementById('stTo').value;
   const tx = db.tx.filter(t => t.memberId === mid && (!from || t.date >= from) && (!to || t.date <= to)).sort((a,b) => a.date.localeCompare(b.date));
   
-  const sav = db.savings.filter(s => s.memberId === mid);
-  const loan = db.loans.filter(l => l.memberId === mid);
+  const sav = db.savings.filter(s => s.memberId === mid && s.status==='active');
+  const loan = db.loans.filter(l => l.memberId === mid && l.status==='active');
   const totalSaving = sav.reduce((x,s) => x + s.total, 0);
   const totalLoanDue = loan.reduce((x,l) => x + Math.max(0, l.total - l.paid), 0);
 
@@ -1536,7 +1688,7 @@ function sendWhatsAppStatement() {
 📞 মোবাইল: ${m.mobile || 'নেই'}
 ${dateFilter}
 --------------------------------
-💎 *মোট Savings ব্যালেন্স:* ${money(totalSaving)}
+💎 *বর্তমান সক্রিয় Savings:* ${money(totalSaving)}
 🏦 *বর্তমান Loan বাকি:* ${money(totalLoanDue)}
 --------------------------------
 📝 *সাম্প্রতিক লেনদেন সমূহ:*
@@ -1587,7 +1739,10 @@ function importBackup(e){
     try{
       let x=JSON.parse(r.result);
       if(!x.members||!x.tx)throw 1;
-      db=x;save();showToast('Backup সফলভাবে Restore হয়েছে');
+      db=x;
+      checkAndCycleMaturedSavings();
+      save();
+      showToast('Backup সফলভাবে Restore হয়েছে');
     }catch{showToast('ভুল backup file')}
   };
   r.readAsText(f);
@@ -1600,7 +1755,131 @@ function clearAll(){
   location.reload();
 }
 
+// PERSONAL NOTEPAD LOGIC
+function saveNotesLocally(){
+  localStorage.setItem(NOTE_KEY, JSON.stringify(notes));
+  renderNotes();
+}
+
+function openNoteModal(id=''){
+  let n = notes.find(x => x.id === id) || {};
+  openModal(id ? 'নোট সম্পাদনা' : 'নতুন নোট / শিডিউল', `
+    <div class="formgrid">
+      <div class="field" style="grid-column:span 2"><label>শিরোনাম / কাজের বিষয়</label><input id="fnTitle" value="${esc(n.title||'')}" placeholder="উদাঃ অমুকের কাছে পাওনা / নিজস্ব দেনা / শিডিউল"></div>
+      <div class="field"><label>শিডিউল তারিখ</label><input id="fnDate" type="date" value="${esc(n.date||today())}"></div>
+      <div class="field"><label>টাকার পরিমাণ (যদি থাকে)</label><input id="fnAmount" type="number" value="${esc(n.amount||'')}" placeholder="ঐচ্ছিক"></div>
+      <div class="field"><label>ক্যাটাগরি</label>
+        <select id="fnCategory">
+          <option ${n.category==='হিসাব'?'selected':''}>হিসাব</option>
+          <option ${n.category==='শিডিউল'?'selected':''}>শিডিউল</option>
+          <option ${n.category==='পাওনা/দেনা'?'selected':''}>পাওনা/দেনা</option>
+          <option ${n.category==='জরুরি'?'selected':''}>জরুরি</option>
+          <option ${n.category==='অন্যান্য'?'selected':''}>অন্যান্য</option>
+        </select>
+      </div>
+      <div class="field" style="grid-column:span 3"><label>বিস্তারিত নোট / বর্ণনা</label><textarea id="fnContent" rows="4" placeholder="আপনার প্রয়োজনীয় হিসাব বা বিবরণ লিখুন...">${esc(n.content||'')}</textarea></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ok" onclick="saveNote('${id||''}')">নোট সেভ করুন</button>
+      ${id ? `<button class="btn danger" onclick="deleteNote('${id}')">মুছে ফেলুন</button>` : ''}
+    </div>
+  `);
+}
+
+function saveNote(oldId){
+  let title = document.getElementById('fnTitle').value.trim();
+  let date = document.getElementById('fnDate').value;
+  let amount = document.getElementById('fnAmount').value;
+  let category = document.getElementById('fnCategory').value;
+  let content = document.getElementById('fnContent').value.trim();
+
+  if(!title) return showToast('নোটের শিরোনাম দিন');
+
+  if(oldId){
+    let item = notes.find(x => x.id === oldId);
+    if(item){
+      item.title = title;
+      item.date = date;
+      item.amount = amount;
+      item.category = category;
+      item.content = content;
+    }
+    showToast('নোট আপডেট করা হয়েছে');
+  } else {
+    notes.unshift({
+      id: uid('N'),
+      title,
+      date,
+      amount,
+      category,
+      content,
+      done: false,
+      createdAt: new Date().toISOString()
+    });
+    showToast('নতুন নোট লিপিবদ্ধ হয়েছে');
+  }
+  closeModal();
+  saveNotesLocally();
+}
+
+function toggleNoteDone(id){
+  let item = notes.find(x => x.id === id);
+  if(item){
+    item.done = !item.done;
+    saveNotesLocally();
+  }
+}
+
+function deleteNote(id){
+  if(!confirm('এই নোটটি মুছে ফেলতে চান?')) return;
+  notes = notes.filter(x => x.id !== id);
+  closeModal();
+  saveNotesLocally();
+  showToast('নোট মুছে ফেলা হয়েছে');
+}
+
+function renderNotes(){
+  const container = document.getElementById('noteList');
+  if(!container) return;
+  const q = (document.getElementById('noteSearch')?.value || '').toLowerCase().trim();
+  const filter = document.getElementById('noteFilter')?.value || 'all';
+
+  let list = notes.filter(n => {
+    let matchQuery = (n.title + ' ' + (n.content||'') + ' ' + (n.category||'')).toLowerCase().includes(q);
+    if(!matchQuery) return false;
+    if(filter === 'pending') return !n.done;
+    if(filter === 'done') return n.done;
+    return true;
+  });
+
+  if(list.length === 0){
+    container.innerHTML = '<div class="empty">কোনো ব্যক্তিগত নোট বা শিডিউল লিপিবদ্ধ নেই।</div>';
+    return;
+  }
+
+  container.innerHTML = list.map(n => `
+    <div class="note-item ${n.done ? 'done' : ''}">
+      <div class="row between">
+        <div>
+          <span class="pill ${n.done?'ok':'warn'}">${esc(n.category||'নোট')}</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:6px">📅 ${n.date || 'তারিখ নেই'}</span>
+          ${n.amount ? `<span class="pill ok" style="margin-left:6px">${money(n.amount)}</span>` : ''}
+        </div>
+        <div class="row" style="gap:4px">
+          <button class="btn icon-only ${n.done?'secondary':'ok'}" style="padding:4px 8px;font-size:12px" onclick="toggleNoteDone('${n.id}')">
+            ${n.done ? '✓ সম্পন্ন' : 'পেন্ডিং'}
+          </button>
+          <button class="btn icon-only secondary" style="padding:4px 8px;font-size:12px" onclick="openNoteModal('${n.id}')">Edit</button>
+        </div>
+      </div>
+      <h4 style="margin:8px 0 4px;font-size:16px;color:var(--p)">${esc(n.title)}</h4>
+      ${n.content ? `<p style="margin:0;font-size:14px;color:#431407;white-space:pre-wrap">${esc(n.content)}</p>` : ''}
+    </div>
+  `).join('');
+}
+
 function renderAll(){
+  checkAndCycleMaturedSavings();
   renderCollectionMembers();
   fillStatementSelect();
   renderMembers();
@@ -1610,6 +1889,7 @@ function renderAll(){
   schedules();
   renderDash();
   renderStatement();
+  renderNotes();
   
   document.getElementById('setName').value=db.settings.name;
   document.getElementById('setPin').value=db.settings.pin;
@@ -1629,7 +1909,6 @@ document.addEventListener('input', e => {
   }
 });
 
-// Close search dropdown on click outside
 document.addEventListener('click', e => {
   if (!e.target.closest('.member-quick-box')) {
     const d = document.getElementById('cSearchDropdown');
