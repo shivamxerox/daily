@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -544,6 +543,17 @@ input:focus,select:focus,textarea:focus{
   .shiva-hero-card .hero-content p { font-size: 12px; }
   .hero-badge-art { width: 50px; height: 50px; }
 }
+
+/* Mahadev-inspired visual polish; existing controls and layout remain intact */
+:root{--mahadev-saffron:#e85d04;--mahadev-deep:#64240d;--mahadev-gold:#ffc857;--mahadev-cream:#fff8ef}
+body{background:radial-gradient(ellipse at 50% -15%,rgba(255,200,87,.20),transparent 42%),linear-gradient(180deg,#fff6e8 0%,#fffaf5 52%,#fff3e3 100%)}
+header,.header,.topbar,.app-header,.head{background-image:linear-gradient(115deg,#70280e 0%,#b83b06 48%,#f07808 100%)}
+.shiva-hero-card{background:linear-gradient(115deg,#54200d 0%,#9d3508 58%,#e85d04 100%);border:1px solid rgba(255,200,87,.5);box-shadow:0 12px 28px rgba(105,39,8,.16)}
+.card,.panel,.stat-card{border-color:#ffd3a0;box-shadow:0 5px 16px rgba(112,40,14,.045)}
+button,.btn{transition:transform .16s ease,box-shadow .16s ease}
+button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(112,40,14,.16)}
+:focus-visible{outline:3px solid rgba(255,190,65,.9);outline-offset:2px}
+@media(max-width:600px){body{padding-bottom:env(safe-area-inset-bottom)}.container,.app,.wrap{width:100%;max-width:100%;border-radius:0}.shiva-hero-card{border-radius:16px}}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -761,10 +771,20 @@ input:focus,select:focus,textarea:focus{
     </div>
     <div class="row" style="margin-top:14px">
       <button class="btn whatsapp" onclick="sendWhatsAppStatement()">📲 WhatsApp এ Statement পাঠান</button>
-      <button class="btn gray" onclick="window.print()">🖨️ প্রিন্ট করুন</button>
+      <button class="btn gray" onclick="printStatement('statementOut')">🖨️ প্রিন্ট করুন</button>
+      <button class="btn secondary" onclick="downloadStatement('statementOut','member-statement')">⬇ Statement Download</button>
+    </div>
+    <hr style="margin:18px 0;border:0;border-top:1px solid var(--line)">
+    <div class="section-title">প্রতিদিনের সমগ্র Statement</div>
+    <div class="formgrid"><div class="field"><label>দিন নির্বাচন করুন</label><input id="dailyStDate" type="date" onchange="renderDailyStatement()"></div></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="renderDailyStatement()">হিসাব দেখুন</button>
+      <button class="btn gray" onclick="printStatement('dailyStatementOut')">🖨️ দৈনিক প্রিন্ট</button>
+      <button class="btn secondary" onclick="downloadStatement('dailyStatementOut','daily-samiti-statement')">⬇ দৈনিক Download</button>
     </div>
   </div>
   <div id="statementOut" style="margin-top:14px"></div>
+  <div id="dailyStatementOut" style="margin-top:14px"></div>
 </section>
 
 <!-- 8. SETTINGS & SYNC -->
@@ -858,6 +878,17 @@ let db=JSON.parse(localStorage.getItem(KEY)||'{"members":[],"loans":[],"savings"
 
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const iso=d=>{let x=new Date(d);return new Date(x.getTime()-x.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+
+// Initial roster: imported only when this browser has no saved members; existing data is never replaced.
+if(!Array.isArray(db.members)) db.members=[];
+if(db.members.length===0){
+ const originalRoster=['গৌতম বর্মণ','অভিজিৎ বর্মণ','দিলীপ বর্মণ','সঞ্জিত অধিকারী','সহদেব সরকার','বাপি বর্মণ','নিমাই বর্মণ','হেন বর্মণ','প্রশান্ত বর্মণ','অভিষেক বর্মণ'];
+ originalRoster.forEach((name,i)=>db.members.push({
+   id:'M-20230508-'+String(i+1).padStart(2,'0'),
+   name,mobile:'',joinDate:'2023-05-08',dailySaving:Number(db.settings?.daily||200),address:''
+ }));
+ try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
+}
 const today=()=>iso(new Date());
 const addDays=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return iso(x)};
 const daysBetween=(a,b)=>Math.floor((new Date(b)-new Date(a))/86400000);
@@ -1054,7 +1085,7 @@ function openMember(id){
  openModal(id?'সদস্য Edit':'নতুন সদস্য',`<div class="formgrid">
  <div class="field"><label>নাম</label><input id="fmName" value="${esc(m.name||'')}"></div>
  <div class="field"><label>মোবাইল</label><input id="fmMobile" value="${esc(m.mobile||'')}"></div>
- <div class="field"><label>যোগদানের তারিখ</label><input id="fmJoinDate" type="date" value="${esc(m.joinDate||today())}" ${id?'disabled':''}></div>
+ <div class="field"><label>যোগদানের তারিখ</label><input id="fmJoinDate" type="date" value="${esc(m.joinDate||today())}" ></div>
  <div class="field"><label>Member ID (Automatic)</label><input id="fmId" value="${esc(m.id||'')}" placeholder="তারিখ দিলে automatic হবে" readonly></div>
  <div class="field"><label>দৈনিক Savings জমা</label><input id="fmDailySaving" type="number" min="0" step="1" value="${esc(m.dailySaving ?? db.settings.daily ?? 200)}"></div>
  <div class="field"><label>ঠিকানা</label><input id="fmAddr" value="${esc(m.address||'')}"></div></div>
@@ -1063,15 +1094,29 @@ function openMember(id){
 
 function saveMember(old){
  let name=document.getElementById('fmName').value.trim(),joinDate=document.getElementById('fmJoinDate').value;
+ let mobile=document.getElementById('fmMobile').value.trim();
  if(!name)return showToast('সদস্যের নাম দিন');
  if(!joinDate)return showToast('যোগদানের তারিখ দিন');
+ if(old && prompt('সদস্যের তথ্য পরিবর্তন করতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN — কোনো পরিবর্তন হয়নি');
+ const normName=v=>String(v||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('bn');
+ const normMobile=v=>String(v||'').replace(/\D/g,'');
+ const duplicate=db.members.find(m=>m.id!==old && (normName(m.name)===normName(name) || (normMobile(mobile) && normMobile(m.mobile)===normMobile(mobile))));
+ if(duplicate){
+   const sv=db.savings.filter(x=>x.memberId===duplicate.id), ln=db.loans.filter(x=>x.memberId===duplicate.id);
+   const savingText=sv.length?sv.map(x=>`${x.id}: জমা ${money(x.total)} (${x.status||'—'})`).join('\n'):'কোনো সেভিং অ্যাকাউন্ট নেই';
+   const loanText=ln.length?ln.map(x=>`${x.id}: বাকি ${money(Math.max(0,x.total-x.paid))} (${x.status||'—'})`).join('\n'):'কোনো লোন অ্যাকাউন্ট নেই';
+   alert(`⚠️ একই সদস্য আগে থেকেই আছেন!\nনাম: ${duplicate.name}\nID: ${duplicate.id}\nমোবাইল: ${duplicate.mobile||'—'}\n\nসেভিং:\n${savingText}\n\nলোন:\n${loanText}\n\nনতুন করে এন্ট্রি করা হয়নি।`);
+   return;
+ }
  let id=old ? old : ('M-'+joinDate.replaceAll('-',''));
- let obj={id,name,mobile:document.getElementById('fmMobile').value.trim(),joinDate,dailySaving:+document.getElementById('fmDailySaving').value||0,address:document.getElementById('fmAddr').value.trim()};
+ if(!old && db.members.some(m=>m.id===id)){alert(`⚠️ এই তারিখের Member ID (${id}) আগে থেকেই আছে।`);return;}
+ let obj={id,name,mobile,joinDate,dailySaving:+document.getElementById('fmDailySaving').value||0,address:document.getElementById('fmAddr').value.trim()};
  if(old){Object.assign(member(old),obj)}else db.members.push(obj);
  closeModal();save();
 }
 
 function deleteMember(id){
+ if(prompt('সদস্য ও হিসাব মুছতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN — মুছে ফেলা হয়নি');
  if(!window.confirm('এই সদস্য ও তার account মুছবেন?'))return;
  db.members=db.members.filter(x=>x.id!==id);
  db.loans=db.loans.filter(x=>x.memberId!==id);
@@ -1227,6 +1272,7 @@ function addCollection(){
  let d=document.getElementById('cDate').value||today();
  
  if(!mid) return showToast('সদস্য নির্বাচন করুন');
+ if(hasPaidOnDate(mid,d)) return showToast('এই সদস্যের নির্বাচিত তারিখে ইতিমধ্যে payment আছে। পরিবর্তনের জন্য Payment History-তে Edit করুন।');
  if(loanAmt<=0 && savingAmt<=0) return showToast('Loan বা Savings-এর অন্তত একটি amount দিন');
  
  let loan=activeLoan(mid), saving=activeSaving(mid);
@@ -1258,19 +1304,32 @@ function closeModalSafe(){
 // Transaction History Modification
 function editTx(id){
  let t=db.tx.find(x=>x.id===id);if(!t)return;
- let pin=prompt('Edit PIN দিন');if(pin!==db.settings.pin)return showToast('ভুল PIN');
- let a=prompt('নতুন টাকা',t.amount),d=prompt('নতুন তারিখ YYYY-MM-DD',t.date);a=+a;
- if(!a||!d)return;
- let diff=a-t.amount,acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
- if(t.type==='loan')acc.paid=Math.max(0,Math.min(acc.total,acc.paid+diff));else acc.total=Math.max(0,acc.total+diff);
- t.amount=a;t.date=d;
- showToast('লেনদেন আপডেট করা হয়েছে');
- save();
+ if(prompt('Payment History পরিবর্তন করতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN');
+ let a=prompt('নতুন টাকা',t.amount);if(a===null)return;
+ let d=prompt('নতুন তারিখ YYYY-MM-DD',t.date);if(d===null)return;
+ let method=prompt('পেমেন্ট মাধ্যম (Cash / QR / Bank)',t.method||'Cash');if(method===null)return;
+ a=Number(a);
+ if(!Number.isFinite(a)||a<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d))return showToast('টাকা বা তারিখ সঠিক নয়');
+ let acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
+ if(!acc)return showToast('সংশ্লিষ্ট অ্যাকাউন্ট পাওয়া যায়নি');
+ if(t.type==='loan'){
+   const next=acc.paid+(a-Number(t.amount));
+   if(next<0||next>acc.total)return showToast('এই পরিবর্তনে লোনের হিসাব সীমার বাইরে যাবে');
+   acc.paid=next;acc.status=acc.paid>=acc.total?'schedule':'active';
+ }else{
+   if(acc.total+(a-Number(t.amount))<0)return showToast('সেভিং ব্যালেন্স শূন্যের নিচে যাবে');
+   acc.total+=a-Number(t.amount);
+ }
+ t.amount=a;t.date=d;t.method=method;
+ showToast('Payment History সংশোধন হয়েছে');save();
 }
 
 function delTx(id){
- let pin=prompt('Delete PIN দিন');if(pin!==db.settings.pin)return showToast('ভুল PIN');
- let t=db.tx.find(x=>x.id===id),acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
+ if(prompt('Payment History মুছতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN');
+ let t=db.tx.find(x=>x.id===id);if(!t)return;
+ if(!window.confirm('এই payment history মুছবেন? হিসাবও আপডেট হবে।'))return;
+ let acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
+ if(!acc)return showToast('সংশ্লিষ্ট অ্যাকাউন্ট পাওয়া যায়নি');
  if(t.type==='loan')acc.paid=Math.max(0,acc.paid-t.amount);else acc.total=Math.max(0,acc.total-t.amount);
  db.tx=db.tx.filter(x=>x.id!==id);
  showToast('লেনদেন ডিলিট করা হয়েছে');
@@ -1294,8 +1353,10 @@ function renderMembers(){
 }
 
 function fillStatementSelect(){
+ const select=document.getElementById('stMember'), previous=select.value;
  let opts=db.members.map(m=>`<option value="${m.id}">${esc(m.name)} — ${m.id}</option>`).join('');
- document.getElementById('stMember').innerHTML='<option value="">সদস্য নির্বাচন করুন</option>'+opts;
+ select.innerHTML='<option value="">সদস্য নির্বাচন করুন</option>'+opts;
+ if(db.members.some(m=>m.id===previous))select.value=previous;
 }
 
 function renderTx(){
@@ -1423,6 +1484,29 @@ function renderStatement(){
  </div>`;
 }
 
+function renderDailyStatement(){
+ const date=document.getElementById('dailyStDate')?.value||today();
+ const tx=db.tx.filter(t=>t.date===date).sort((a,b)=>(a.memberId||'').localeCompare(b.memberId||''));
+ const loanTotal=tx.filter(t=>t.type==='loan').reduce((n,t)=>n+Number(t.amount||0),0);
+ const savingTotal=tx.filter(t=>t.type==='saving').reduce((n,t)=>n+Number(t.amount||0),0);
+ const rows=tx.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(member(t.memberId)?.name||'সদস্য নেই')}</td><td>${esc(t.memberId)}</td><td>${t.type==='loan'?'Loan':'Savings'}</td><td>${money(t.amount)}</td><td>${esc(t.method||'—')}</td><td>${esc(t.note||'—')}</td></tr>`).join('');
+ document.getElementById('dailyStatementOut').innerHTML=`<div class="card"><h2>${esc(db.settings.name||'শিবম সমিতি')} — দৈনিক সমগ্র Statement</h2><p>তারিখ: <b>${esc(date)}</b></p><div class="grid"><div class="card"><small>মোট Loan Collection</small><div class="value">${money(loanTotal)}</div></div><div class="card"><small>মোট Savings Collection</small><div class="value">${money(savingTotal)}</div></div><div class="card"><small>মোট কালেকশন</small><div class="value">${money(loanTotal+savingTotal)}</div></div><div class="card"><small>লেনদেন সংখ্যা</small><div class="value">${tx.length}</div></div></div><div class="tablewrap"><table class="table"><thead><tr><th>তারিখ</th><th>সদস্য</th><th>ID</th><th>অ্যাকাউন্ট</th><th>টাকা</th><th>মাধ্যম</th><th>নোট</th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="empty">এই তারিখে কোনো লেনদেন নেই</td></tr>'}</tbody></table></div></div>`;
+}
+function printStatement(elementId){
+ const el=document.getElementById(elementId);
+ if(!el||!el.innerHTML.trim())return showToast('প্রিন্ট করার মতো Statement নেই');
+ const w=window.open('','_blank');
+ if(!w)return showToast('Print window আটকানো হয়েছে। Browser popup অনুমতি দিন।');
+ w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>Statement</title><style>body{font-family:Arial,sans-serif;padding:18px;color:#222}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;text-align:left}th{background:#f3f3f3}.grid{display:flex;gap:10px;flex-wrap:wrap}.card{padding:8px;margin:6px 0}button{display:none}</style></head><body>'+el.innerHTML+'</body></html>');
+ w.document.close();w.focus();setTimeout(()=>w.print(),300);
+}
+function downloadStatement(elementId,filename){
+ const el=document.getElementById(elementId);
+ if(!el||!el.innerHTML.trim())return showToast('ডাউনলোড করার মতো Statement নেই');
+ const html='<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>Statement</title><style>body{font-family:Arial,sans-serif;padding:18px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;text-align:left}</style></head><body>'+el.innerHTML+'</body></html>';
+ const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=filename+'-'+today()+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
 function sendWhatsAppStatement() {
   const mid = document.getElementById('stMember').value;
   if (!mid) return showToast('আগে একজন সদস্য নির্বাচন করুন');
@@ -1533,6 +1617,8 @@ function renderAll(){
   document.getElementById('appTitleHeader').textContent = db.settings.name || 'শিবম সমিতি';
   if(document.getElementById('fbDbUrl')) document.getElementById('fbDbUrl').value = db.settings.dbUrl || '';
   if(!document.getElementById('cDate').value) document.getElementById('cDate').value=today();
+  if(document.getElementById('dailyStDate')&&!document.getElementById('dailyStDate').value)document.getElementById('dailyStDate').value=today();
+  renderDailyStatement();
 }
 
 setupNavigation();
@@ -1557,4 +1643,3 @@ updateNetworkStatus();
 </script>
 </body>
 </html>
-```
