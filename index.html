@@ -271,7 +271,7 @@ main{padding:16px;flex:1}
   overflow: hidden;
 }
 .shiva-hero-card::after {
-  content: 'ॐ नमঃ शिवाय';
+  content: 'ॐ नमः शिवाय';
   position: absolute;
   right: -10px;
   bottom: -15px;
@@ -862,12 +862,15 @@ let notes=JSON.parse(localStorage.getItem(NOTE_KEY)||'[]');
 
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const iso=d=>{let x=new Date(d);return new Date(x.getTime()-x.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const nowTs=()=>Date.now();
 
+// Initial Roster Loading - strictly once per brand-new installation
 if(!db.rosterInitialized && (!db.members || db.members.length===0)){
  const originalRoster=['গৌতম বর্মণ','অভিজিৎ বর্মণ','দিলীপ বর্মণ','সঞ্জিত অধিকারী','সহদেব সরকার','বাপি বর্মণ','নিমাই বর্মণ','হেন বর্মণ','প্রশান্ত বর্মণ','অভিষেক বর্মণ'];
  originalRoster.forEach((name,i)=>db.members.push({
    id:'M-20230508-'+String(i+1).padStart(2,'0'),
-   name,mobile:'',joinDate:'2023-05-08',dailySaving:Number(db.settings?.daily||200),address:''
+   name,mobile:'',joinDate:'2023-05-08',dailySaving:Number(db.settings?.daily||200),address:'',
+   updatedAt: nowTs()
  }));
  db.rosterInitialized = true;
  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
@@ -895,17 +898,51 @@ function updateNetworkStatus() {
 window.addEventListener('online', updateNetworkStatus);
 window.addEventListener('offline', updateNetworkStatus);
 
+/* -------------------------------------------------------------
+   ROBUST BI-DIRECTIONAL MERGE WITH TIMESTAMP & TOMBSTONES
+   Ensures Offline Entries/Edits/Deletes are never overwritten
+---------------------------------------------------------------- */
+function mergeListByTimestamp(localArr = [], remoteArr = []) {
+  const map = new Map();
+  
+  // Load local items first
+  (localArr || []).forEach(item => {
+    if (item && item.id) map.set(item.id, Object.assign({}, item));
+  });
+
+  // Merge remote items based on updatedAt
+  (remoteArr || []).forEach(rem => {
+    if (!rem || !rem.id) return;
+    const loc = map.get(rem.id);
+    if (!loc) {
+      map.set(rem.id, rem);
+    } else {
+      const locTime = loc.updatedAt || 0;
+      const remTime = rem.updatedAt || 0;
+      // Last-Write-Wins logic
+      if (remTime > locTime) {
+        map.set(rem.id, Object.assign({}, loc, rem));
+      } else {
+        // Local is newer: preserve local completely
+        map.set(rem.id, Object.assign({}, rem, loc));
+      }
+    }
+  });
+
+  // Filter out soft-deleted items
+  return Array.from(map.values()).filter(x => !x._deleted);
+}
+
 function mergeDatabases(local, remote) {
   if (!remote) return local;
-  const merged = {
-    members: Array.isArray(remote.members) ? remote.members : [...(local.members || [])],
-    loans: Array.isArray(remote.loans) ? remote.loans : [...(local.loans || [])],
-    savings: Array.isArray(remote.savings) ? remote.savings : [...(local.savings || [])],
-    tx: Array.isArray(remote.tx) ? remote.tx : [...(local.tx || [])],
+  return {
+    members: mergeListByTimestamp(local.members, remote.members),
+    loans: mergeListByTimestamp(local.loans, remote.loans),
+    savings: mergeListByTimestamp(local.savings, remote.savings),
+    tx: mergeListByTimestamp(local.tx, remote.tx),
     settings: Object.assign({}, local.settings || {}, remote.settings || {}),
     rosterInitialized: true
   };
-  return merged;
 }
 
 function initFirebase() {
@@ -930,6 +967,9 @@ function initFirebase() {
         renderAll();
         isRemoteUpdating = false;
         
+        // Push reconciled local state back to Firebase
+        fbRef.set(db).catch(e => console.log('Silent sync write back:', e));
+
         const syncState = document.getElementById('syncState');
         syncState.textContent = '● লাইভ সিঙ্কড';
         syncState.className = 'status-pill online';
@@ -989,34 +1029,25 @@ function save(){
 }
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function member(id){return db.members.find(x=>x.id===id)}
-function activeLoan(mid){return db.loans.find(x=>x.memberId===mid&&x.status==='active')}
+function member(id){return db.members.find(x=>x.id===id && !x._deleted)}
+function activeLoan(mid){return db.loans.find(x=>x.memberId===mid&&x.status==='active'&&!x._deleted)}
+function activeSaving(mid){return db.savings.find(x=>x.memberId===mid&&x.status==='active'&&!x._deleted)}
 
-// Returns only the current Active savings account of a member
-function activeSaving(mid){
-  return db.savings.find(x=>x.memberId===mid&&x.status==='active');
-}
-
-// -------------------------------------------------------------
-// NEW: AUTOMATIC 360 DAYS SAVINGS ROLLOVER & RENEWAL SYSTEM
-// -------------------------------------------------------------
 function checkAndCycleMaturedSavings(){
   let changed = false;
   const td = today();
   
   (db.savings || []).forEach(s => {
-    if(s.status === 'active'){
+    if(s.status === 'active' && !s._deleted){
       let days = daysBetween(s.start, td);
-      // If 360 days or more passed, move to schedule & create new account
       if(days >= 360){
         s.status = 'schedule';
         s.scheduledDate = td;
+        s.updatedAt = nowTs();
         changed = true;
         
-        // Check if member already has another active savings
-        let hasActive = db.savings.some(other => other.memberId === s.memberId && other.status === 'active');
+        let hasActive = db.savings.some(other => other.memberId === s.memberId && other.status === 'active' && !other._deleted);
         if(!hasActive){
-          // Auto create a fresh active savings account for member starting from completion date
           let newStartDate = s.maturity && s.maturity <= td ? s.maturity : td;
           db.savings.push({
             id: uid('S'),
@@ -1026,7 +1057,8 @@ function checkAndCycleMaturedSavings(){
             status: 'active',
             total: 0,
             cycle: (s.cycle || 1) + 1,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            updatedAt: nowTs()
           });
         }
       }
@@ -1118,7 +1150,7 @@ function saveMember(oldId){
  const normName=v=>String(v||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('bn');
  const normMobile=v=>String(v||'').replace(/\D/g,'');
 
- const duplicate = db.members.find(m => m.id !== oldId && (
+ const duplicate = db.members.find(m => !m._deleted && m.id !== oldId && (
    normName(m.name) === normName(name) || (mobile && normMobile(m.mobile) === normMobile(mobile))
  ));
 
@@ -1135,6 +1167,7 @@ function saveMember(oldId){
      existing.joinDate = joinDate;
      existing.dailySaving = dailySaving;
      existing.address = address;
+     existing.updatedAt = nowTs();
    }
    showToast('সদস্যের তথ্য সফলভাবে আপডেট হয়েছে!');
  } else {
@@ -1145,7 +1178,9 @@ function saveMember(oldId){
      mobile,
      joinDate,
      dailySaving,
-     address
+     address,
+     createdAt: new Date().toISOString(),
+     updatedAt: nowTs()
    });
    showToast('নতুন সদস্য সফলভাবে যোগ হয়েছে!');
  }
@@ -1157,12 +1192,14 @@ function saveMember(oldId){
 function deleteMember(id){
  let pin = prompt('সদস্য ও হিসাব সম্পূর্ণ মুছতে Admin PIN দিন');
  if(pin !== db.settings.pin) return showToast('ভুল PIN — মুছে ফেলা হয়নি');
- if(!window.confirm('সতর্কতা: এই সদস্য ও তার সমস্ত পূর্ববর্তী লোন ও সেভিংস হিসাব মুছে ফেলা হবে। নিশ্চিত?')) return;
+ if(!window.confirm('সতর্কতা: এই সদস্য ও তার সমস্ত পূর্ববর্তী হিসাব মুছে ফেলা হবে। নিশ্চিত?')) return;
 
- db.members = db.members.filter(x => x.id !== id);
- db.loans = db.loans.filter(x => x.memberId !== id);
- db.savings = db.savings.filter(x => x.memberId !== id);
- db.tx = db.tx.filter(x => x.memberId !== id);
+ const ts = nowTs();
+ // Mark deleted with tombstone so Firebase never revives them
+ db.members.forEach(x => { if(x.id === id) { x._deleted = true; x.updatedAt = ts; } });
+ db.loans.forEach(x => { if(x.memberId === id) { x._deleted = true; x.updatedAt = ts; } });
+ db.savings.forEach(x => { if(x.memberId === id) { x._deleted = true; x.updatedAt = ts; } });
+ db.tx.forEach(x => { if(x.memberId === id) { x._deleted = true; x.updatedAt = ts; } });
 
  closeModal();
  save();
@@ -1170,7 +1207,7 @@ function deleteMember(id){
 }
 
 function openLoan(mid=''){
- let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
+ let options=db.members.filter(m=>!m._deleted).map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
  openModal('নতুন Loan Account',`<div class="formgrid">
  <div class="field"><label>সদস্য</label><select id="flMember">${options}</select></div>
  <div class="field"><label>Loan Principal</label><input id="flPrincipal" type="number" value="10000" min="1"></div>
@@ -1184,24 +1221,47 @@ function saveLoan(){
  let mid=flMember.value,p=+flPrincipal.value,n=+flInst.value||100,d=flDate.value;
  if(!mid||p<=0)return showToast('তথ্য পূরণ করুন');
  let total=Math.round(p*1.10*100)/100,inst=Math.round(total/n*100)/100;
- let loan={id:uid('L'),memberId:mid,principal:p,total,installments:n,installment:inst,start:d,end:addDays(d,n-1),paid:0,status:'active',createdAt:new Date().toISOString()};
+ let loan={
+   id:uid('L'),
+   memberId:mid,
+   principal:p,
+   total,
+   installments:n,
+   installment:inst,
+   start:d,
+   end:addDays(d,n-1),
+   paid:0,
+   status:'active',
+   createdAt:new Date().toISOString(),
+   updatedAt: nowTs()
+ };
  db.loans.push(loan);closeModal();save();
 }
 
 function openSaving(mid=''){
- let options=db.members.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
+ let options=db.members.filter(m=>!m._deleted).map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${esc(m.name)} (${m.id})</option>`).join('');
  openModal('নতুন Savings Account',`<div class="formgrid"><div class="field"><label>সদস্য</label><select id="fsMember">${options}</select></div><div class="field"><label>শুরু তারিখ</label><input id="fsDate" type="date" value="${today()}"></div></div><div class="notice">360 দিনে maturity = মোট saving × 1.06। 360 দিন পার হলে স্বয়ংক্রিয়ভাবে শিডিউলে যাবে এবং পরবর্তী সাইকেলের নতুন অ্যাকাউন্ট খুলবে।[cite: 1]</div><button class="btn ok" onclick="saveSaving()">Savings Account তৈরি</button>`);
 }
 
 function saveSaving(){
  let mid=fsMember.value,d=fsDate.value;
  if(!mid)return showToast('সদস্য নির্বাচন করুন');
- db.savings.push({id:uid('S'),memberId:mid,start:d,maturity:addDays(d,360),status:'active',total:0,cycle:1,createdAt:new Date().toISOString()});
+ db.savings.push({
+   id:uid('S'),
+   memberId:mid,
+   start:d,
+   maturity:addDays(d,360),
+   status:'active',
+   total:0,
+   cycle:1,
+   createdAt:new Date().toISOString(),
+   updatedAt: nowTs()
+ });
  closeModal();save();
 }
 
 function hasPaidOnDate(memberId, dateStr) {
-  return db.tx.some(t => t.memberId === memberId && t.date === dateStr);
+  return db.tx.some(t => !t._deleted && t.memberId === memberId && t.date === dateStr);
 }
 
 function renderCollectionMembers() {
@@ -1213,7 +1273,7 @@ function renderCollectionMembers() {
   let paidCount = 0;
   let availableMembers = [];
 
-  db.members.forEach(m => {
+  db.members.filter(m=>!m._deleted).forEach(m => {
     const isPaid = hasPaidOnDate(m.id, currentDate);
     if (isPaid) paidCount++;
     if (!isPaid || showPaid) {
@@ -1251,7 +1311,7 @@ function searchQuickMember(query) {
     return;
   }
 
-  const matches = db.members.filter(m => {
+  const matches = db.members.filter(m => !m._deleted).filter(m => {
     const matchesQuery = m.name.toLowerCase().includes(q) || (m.mobile && m.mobile.includes(q)) || m.id.toLowerCase().includes(q);
     const isPaid = hasPaidOnDate(m.id, currentDate);
     return matchesQuery && (!isPaid || showPaid);
@@ -1320,11 +1380,10 @@ function addCollection(){
  if(loanAmt<=0 && savingAmt<=0) return showToast('Loan বা Savings-এর অন্তত একটি amount দিন');
  
  let loan=activeLoan(mid);
- let saving=activeSaving(mid); // Always gets the newly active savings account
+ let saving=activeSaving(mid);
 
  if(loanAmt>0 && !loan) return showToast('এই সদস্যের active Loan নেই');
  
- // If no active savings account exists, auto-create one for this member
  if(savingAmt>0 && !saving){
    saving = {
      id: uid('S'),
@@ -1334,22 +1393,26 @@ function addCollection(){
      status: 'active',
      total: 0,
      cycle: 1,
-     createdAt: new Date().toISOString()
+     createdAt: new Date().toISOString(),
+     updatedAt: nowTs()
    };
    db.savings.push(saving);
  }
  
+ const ts = nowTs();
  if(loan && loanAmt>0){
    let remain=Math.max(0,loan.total-loan.paid);
    if(loanAmt>remain)return showToast(`Loan বাকি ${money(remain)}। এর বেশি payment দেওয়া যাবে না।`);
    loan.paid+=loanAmt;
+   loan.updatedAt = ts;
    if(loan.paid>=loan.total){loan.paid=loan.total;loan.status='schedule';}
-   db.tx.push({id:uid('T'),memberId:mid,type:'loan',amount:loanAmt,date:d,method:document.getElementById('cMethod').value,note:document.getElementById('cNote').value,accountId:loan.id,batchId:uid('B')});
+   db.tx.push({id:uid('T'),memberId:mid,type:'loan',amount:loanAmt,date:d,method:document.getElementById('cMethod').value,note:document.getElementById('cNote').value,accountId:loan.id,batchId:uid('B'),updatedAt:ts});
  }
  
  if(saving && savingAmt>0){
    saving.total+=savingAmt;
-   db.tx.push({id:uid('T'),memberId:mid,type:'saving',amount:savingAmt,date:d,method:document.getElementById('cMethod').value,note:document.getElementById('cNote').value,accountId:saving.id,batchId:uid('B')});
+   saving.updatedAt = ts;
+   db.tx.push({id:uid('T'),memberId:mid,type:'saving',amount:savingAmt,date:d,method:document.getElementById('cMethod').value,note:document.getElementById('cNote').value,accountId:saving.id,batchId:uid('B'),updatedAt:ts});
  }
 
  showToast('পেমেন্ট সফলভাবে জমা হয়েছে!');
@@ -1362,7 +1425,7 @@ function closeModalSafe(){
 }
 
 function editTx(id){
- let t=db.tx.find(x=>x.id===id);if(!t)return;
+ let t=db.tx.find(x=>x.id===id && !x._deleted);if(!t)return;
  if(prompt('Payment History পরিবর্তন করতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN');
  let a=prompt('নতুন টাকা',t.amount);if(a===null)return;
  let d=prompt('নতুন তারিখ YYYY-MM-DD',t.date);if(d===null)return;
@@ -1370,8 +1433,9 @@ function editTx(id){
  a=Number(a);
  if(!Number.isFinite(a)||a<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d))return showToast('টাকা বা তারিখ সঠিক নয়');
  
+ const ts = nowTs();
  if(t.type==='expense'){
-   t.amount=a;t.date=d;t.method=method;
+   t.amount=a;t.date=d;t.method=method;t.updatedAt=ts;
    showToast('Maturity ব্যয় সংশোধন হয়েছে');save();
    return;
  }
@@ -1381,43 +1445,42 @@ function editTx(id){
  if(t.type==='loan'){
    const next=acc.paid+(a-Number(t.amount));
    if(next<0||next>acc.total)return showToast('এই পরিবর্তনে লোনের হিসাব সীমার বাইরে যাবে');
-   acc.paid=next;acc.status=acc.paid>=acc.total?'schedule':'active';
+   acc.paid=next;acc.status=acc.paid>=acc.total?'schedule':'active';acc.updatedAt=ts;
  }else{
    if(acc.total+(a-Number(t.amount))<0)return showToast('সেভিং ব্যালেন্স শূন্যের নিচে যাবে');
-   acc.total+=a-Number(t.amount);
+   acc.total+=a-Number(t.amount);acc.updatedAt=ts;
  }
- t.amount=a;t.date=d;t.method=method;
+ t.amount=a;t.date=d;t.method=method;t.updatedAt=ts;
  showToast('Payment History সংশোধন হয়েছে');save();
 }
 
 function delTx(id){
  if(prompt('Payment History মুছতে Admin PIN দিন')!==db.settings.pin)return showToast('ভুল PIN');
- let t=db.tx.find(x=>x.id===id);if(!t)return;
+ let t=db.tx.find(x=>x.id===id && !x._deleted);if(!t)return;
  if(!window.confirm('এই payment history মুছবেন? হিসাবও আপডেট হবে।'))return;
  
+ const ts = nowTs();
  if(t.type==='expense'){
    let acc=db.savings.find(x=>x.id===t.accountId);
    if(acc && acc.status==='matured'){
-     acc.status='schedule'; // Reopen to schedule if deleted
+     acc.status='schedule';
+     acc.updatedAt = ts;
    }
  } else {
    let acc=t.type==='loan'?db.loans.find(x=>x.id===t.accountId):db.savings.find(x=>x.id===t.accountId);
    if(acc){
      if(t.type==='loan')acc.paid=Math.max(0,acc.paid-t.amount);else acc.total=Math.max(0,acc.total-t.amount);
+     acc.updatedAt = ts;
    }
  }
- db.tx=db.tx.filter(x=>x.id!==id);
+ t._deleted = true;
+ t.updatedAt = ts;
  showToast('লেনদেন ডিলিট করা হয়েছে');
  save();
 }
 
-function finishLoan(id){let l=db.loans.find(x=>x.id===id);if(!l)return;l.status='schedule';save()}
-
-// -------------------------------------------------------------
-// MATURITY PAYMENT: DEDUCTS FROM TOTAL CASH AUTOMATICALLY
-// -------------------------------------------------------------
 function matureSaving(id, early=false){
- let s=db.savings.find(x=>x.id===id);if(!s)return;
+ let s=db.savings.find(x=>x.id===id && !x._deleted);if(!s)return;
  let m=member(s.memberId);
  let days=daysBetween(s.start,today());
  let interest = days>=360 ? Math.round(s.total * 0.06) : 0;
@@ -1426,7 +1489,7 @@ function matureSaving(id, early=false){
  let totalPayable = s.total + interest;
  if(!window.confirm(`সদস্য: ${m?.name||''}\nমূলধন জমা: ${money(s.total)}\n৬% সুদ: ${money(interest)}\n-----------------------\nমোট পরিশোধ করবেন: ${money(totalPayable)}\n\nএই টাকা ক্যাশ থেকে বাদ দেওয়া হবে। কনফার্ম করবেন?`)) return;
 
- // Deduct from samiti cash by recording an 'expense' payout transaction
+ const ts = nowTs();
  db.tx.push({
    id: uid('T'),
    memberId: s.memberId,
@@ -1436,31 +1499,34 @@ function matureSaving(id, early=false){
    method: 'Cash',
    note: `Maturity payout: ${s.id} (আসল ${money(s.total)} + সুদ ${money(interest)})`,
    accountId: s.id,
-   batchId: uid('B')
+   batchId: uid('B'),
+   updatedAt: ts
  });
 
  s.status = 'matured';
  s.closedDate = today();
  s.paidAmount = totalPayable;
+ s.updatedAt = ts;
  
  showToast(`ম্যাচিউরিটি ${money(totalPayable)} পরিশোধিত ও ক্যাশ থেকে বিয়োগ হয়েছে!`);
  save();
 }
 
 function renderMembers(){
- let q=(document.getElementById('memberSearch').value||'').toLowerCase(),rows=db.members.filter(m=>(m.name+m.mobile+m.id).toLowerCase().includes(q));
+ let q=(document.getElementById('memberSearch').value||'').toLowerCase();
+ let rows=db.members.filter(m=>!m._deleted).filter(m=>(m.name+m.mobile+m.id).toLowerCase().includes(q));
  document.getElementById('memberRows').innerHTML=rows.map(m=>`<tr><td>${esc(m.id)}</td><td><b>${esc(m.name)}</b></td><td>${esc(m.mobile)}</td><td>${activeSaving(m.id)?money(activeSaving(m.id).total):'—'}</td><td>${activeLoan(m.id)?money(activeLoan(m.id).total-activeLoan(m.id).paid):'—'}</td><td><button class="btn secondary" onclick="openMember('${m.id}')">Edit</button> <button class="btn" onclick="openLoan('${m.id}')">Loan</button> <button class="btn ok" onclick="openSaving('${m.id}')">Saving</button></td></tr>`).join('')||`<tr><td colspan="6" class="empty">কোনো সদস্য নেই</td></tr>`;
 }
 
 function fillStatementSelect(){
  const select=document.getElementById('stMember'), previous=select.value;
- let opts=db.members.map(m=>`<option value="${m.id}">${esc(m.name)} — ${m.id}</option>`).join('');
+ let opts=db.members.filter(m=>!m._deleted).map(m=>`<option value="${m.id}">${esc(m.name)} — ${m.id}</option>`).join('');
  select.innerHTML='<option value="">সদস্য নির্বাচন করুন</option>'+opts;
- if(db.members.some(m=>m.id===previous))select.value=previous;
+ if(db.members.some(m=>!m._deleted && m.id===previous))select.value=previous;
 }
 
 function renderTx(){
- document.getElementById('txRows').innerHTML=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{
+ document.getElementById('txRows').innerHTML=db.tx.filter(t=>!t._deleted).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>{
    let m=member(t.memberId);
    let badgeClass = t.type==='loan' ? 'pill ok' : (t.type==='saving' ? 'pill' : 'pill bad');
    let typeLabel = t.type==='loan' ? 'Loan জমা' : (t.type==='saving' ? 'Savings জমা' : 'Maturity পরিশোধ (খরচ)');
@@ -1470,7 +1536,7 @@ function renderTx(){
 }
 
 function renderLoans(){
- document.getElementById('loanRows').innerHTML=db.loans.map(l=>{
+ document.getElementById('loanRows').innerHTML=db.loans.filter(l=>!l._deleted).map(l=>{
    let m=member(l.memberId),remain=Math.max(0,l.total-l.paid),margin=(l.total-l.principal);
    return `<tr><td>${l.id}</td><td>${esc(m?.name||'')}</td><td>${money(l.principal)}</td><td><b style="color:var(--ok)">${money(margin)}</b></td><td>${money(l.installment)}</td><td>${money(l.paid)}</td><td>${money(remain)}</td><td>${l.end}</td><td><span class="pill ${l.status==='active'?'ok':'warn'}">${l.status==='active'?'Active':'Schedule'}</span></td><td>${l.status==='active'?`<button class="btn ok" onclick="quickLoan('${l.memberId}')">Payment</button>`:`<button class="btn" onclick="openLoan('${l.memberId}')">নতুন Loan</button>`}</td></tr>`;
  }).join('')||`<tr><td colspan="10" class="empty">Loan নেই</td></tr>`;
@@ -1487,7 +1553,7 @@ function quickLoan(mid){
 }
 
 function renderSavings(){
- document.getElementById('savingRows').innerHTML=db.savings.map(s=>{
+ document.getElementById('savingRows').innerHTML=db.savings.filter(s=>!s._deleted).map(s=>{
    let m=member(s.memberId),days=daysBetween(s.start,today()),val=days>=360?s.total*1.06:s.total;
    let cycleTag = s.cycle ? ` (সাইকেল ${s.cycle})` : '';
    return `<tr><td>${s.id}${cycleTag}</td><td>${esc(m?.name||'')}</td><td>${s.start}</td><td>${money(s.total)}</td><td>${s.maturity}</td><td>${money(val)}</td><td><span class="pill ${s.status==='active'?'ok':(s.status==='schedule'?'warn':'bad')}">${s.status==='active'?'Active (চলমান)':(s.status==='schedule'?'Schedule (পরিশোধের অপেক্ষায়)':'Matured (পরিশোধিত)')}</span></td><td>${s.status==='schedule'?`<button class="btn warn" onclick="matureSaving('${s.id}')">পেমেন্ট ক্লোজ করুন</button>`:(s.status==='active'?`<span style="font-size:12px;color:var(--muted)">৩৬০ দিন পরে অটো-শিডিউল হবে</span>`:'—')}</td></tr>`;
@@ -1496,28 +1562,26 @@ function renderSavings(){
 
 function schedules(){
  let td = today();
- let ld=db.loans.filter(l=>l.status==='active'&&daysBetween(td,l.end)<=5&&daysBetween(td,l.end)>=0);
- 
- // Savings in schedule status (360 days passed and waiting for maturity payout)
- let sd=db.savings.filter(s=>s.status==='schedule');
+ let ld=db.loans.filter(l=>!l._deleted&&l.status==='active'&&daysBetween(td,l.end)<=5&&daysBetween(td,l.end)>=0);
+ let sd=db.savings.filter(s=>!s._deleted&&s.status==='schedule');
 
  let loansEndingNext30 = db.loans.filter(l => {
-   if (l.status !== 'active') return false;
+   if (l._deleted || l.status !== 'active') return false;
    let remDays = daysBetween(td, l.end);
    return remDays >= 0 && remDays <= 30;
  });
  let sumLoansEndingNext30 = loansEndingNext30.reduce((sum, l) => sum + Math.max(0, l.total - l.paid), 0);
 
  let savingsMaturingNext30 = db.savings.filter(s => {
-   if (s.status === 'matured') return false;
+   if (s._deleted || s.status === 'matured') return false;
    let daysPassed = daysBetween(s.start, td);
    return daysPassed >= 330;
  });
  let maturingPayableSum = savingsMaturingNext30.reduce((sum, s) => sum + (s.total * 1.06), 0);
 
- let activeLoans = db.loans.filter(l => l.status === 'active');
- let dailyLoanExpected = activeLoans.reduce((sum, l) => sum + (l.installment || 0), 0);
- let dailySavingExpected = db.members.reduce((sum, m) => sum + (m.dailySaving || db.settings.daily || 200), 0);
+ let activeLoansList = db.loans.filter(l => !l._deleted && l.status === 'active');
+ let dailyLoanExpected = activeLoansList.reduce((sum, l) => sum + (l.installment || 0), 0);
+ let dailySavingExpected = db.members.filter(m=>!m._deleted).reduce((sum, m) => sum + (m.dailySaving || db.settings.daily || 200), 0);
  let total30DaysEstimatedCollection = (dailyLoanExpected + dailySavingExpected) * 30;
 
  if(document.getElementById('fcCollect')) document.getElementById('fcCollect').textContent = money(total30DaysEstimatedCollection);
@@ -1534,8 +1598,8 @@ function schedules(){
  `;
  if(document.getElementById('fcDetailedInsight')) document.getElementById('fcDetailedInsight').innerHTML = insightHtml;
 
- let totalActiveLoanMargin = db.loans.filter(l=>l.status==='active').reduce((sum,l)=>sum+(l.total-l.principal),0);
- let activeLoansRemaining = db.loans.filter(l=>l.status==='active').reduce((sum,l)=>sum+Math.max(0,l.total-l.paid),0);
+ let totalActiveLoanMargin = db.loans.filter(l=>!l._deleted&&l.status==='active').reduce((sum,l)=>sum+(l.total-l.principal),0);
+ let activeLoansRemaining = db.loans.filter(l=>!l._deleted&&l.status==='active').reduce((sum,l)=>sum+Math.max(0,l.total-l.paid),0);
 
  let totalSavingsPrincipalToPay = sd.reduce((sum,s)=>sum+s.total,0);
  let totalSavingsPayable = sd.reduce((sum,s)=>sum+(s.total*1.06),0);
@@ -1588,20 +1652,19 @@ function schedules(){
 
 function renderDash(){
  let td=today();
- let todayCollection = db.tx.filter(t=>t.date===td && t.type!=='expense').reduce((s,t)=>s+t.amount,0);
+ let todayCollection = db.tx.filter(t=>!t._deleted && t.date===td && t.type!=='expense').reduce((s,t)=>s+t.amount,0);
  
- // Inflow is collection (loan + saving), outflow is maturity payouts (expense)
- let totalInflow = db.tx.filter(t=>t.type!=='expense').reduce((s,t)=>s+t.amount,0);
- let totalOutflow = db.tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+ let totalInflow = db.tx.filter(t=>!t._deleted && t.type!=='expense').reduce((s,t)=>s+t.amount,0);
+ let totalOutflow = db.tx.filter(t=>!t._deleted && t.type==='expense').reduce((s,t)=>s+t.amount,0);
  let currentHandCash = Math.max(0, totalInflow - totalOutflow);
 
  document.getElementById('mToday').textContent=money(todayCollection);
  document.getElementById('mCash').textContent=money(currentHandCash);
- document.getElementById('mLoans').textContent=db.loans.filter(x=>x.status==='active').length;
- document.getElementById('mSavings').textContent=db.savings.filter(x=>x.status==='active').length;
- document.getElementById('mMembers').textContent=db.members.length;
+ document.getElementById('mLoans').textContent=db.loans.filter(x=>!x._deleted && x.status==='active').length;
+ document.getElementById('mSavings').textContent=db.savings.filter(x=>!x._deleted && x.status==='active').length;
+ document.getElementById('mMembers').textContent=db.members.filter(x=>!x._deleted).length;
  
- document.getElementById('todayList').innerHTML=db.tx.filter(t=>t.date===td).slice().reverse().map(t=>{
+ document.getElementById('todayList').innerHTML=db.tx.filter(t=>!t._deleted && t.date===td).slice().reverse().map(t=>{
    let m=member(t.memberId);
    let isExpense = t.type==='expense';
    return `<div class="item">${esc(m?.name||'')} — <b style="color:${isExpense?'var(--bad)':'var(--ok)'}">${isExpense?'- ':''}${money(t.amount)}</b> <span class="pill ${isExpense?'bad':'ok'}">${isExpense?'ম্যাচিউরিটি পরিশোধ':t.type}</span></div>`;
@@ -1612,8 +1675,8 @@ function renderStatement(){
  let mid=document.getElementById('stMember').value;
  if(!mid){document.getElementById('statementOut').innerHTML='';return}
  let m=member(mid),from=document.getElementById('stFrom').value,to=document.getElementById('stTo').value;
- let tx=db.tx.filter(t=>t.memberId===mid&&(!from||t.date>=from)&&(!to||t.date<=to)).sort((a,b)=>a.date.localeCompare(b.date));
- let sav=db.savings.filter(s=>s.memberId===mid && s.status==='active'),loan=db.loans.filter(l=>l.memberId===mid && l.status==='active');
+ let tx=db.tx.filter(t=>!t._deleted && t.memberId===mid&&(!from||t.date>=from)&&(!to||t.date<=to)).sort((a,b)=>a.date.localeCompare(b.date));
+ let sav=db.savings.filter(s=>!s._deleted && s.memberId===mid && s.status==='active'),loan=db.loans.filter(l=>!l._deleted && l.memberId===mid && l.status==='active');
  
  document.getElementById('statementOut').innerHTML=`<div class="card">
    <h2>${esc(m.name)} (${esc(m.id)})</h2>
@@ -1633,7 +1696,7 @@ function renderStatement(){
 
 function renderDailyStatement(){
  const date=document.getElementById('dailyStDate')?.value||today();
- const tx=db.tx.filter(t=>t.date===date).sort((a,b)=>(a.memberId||'').localeCompare(b.memberId||''));
+ const tx=db.tx.filter(t=>!t._deleted && t.date===date).sort((a,b)=>(a.memberId||'').localeCompare(b.memberId||''));
  const loanTotal=tx.filter(t=>t.type==='loan').reduce((n,t)=>n+Number(t.amount||0),0);
  const savingTotal=tx.filter(t=>t.type==='saving').reduce((n,t)=>n+Number(t.amount||0),0);
  const expenseTotal=tx.filter(t=>t.type==='expense').reduce((n,t)=>n+Number(t.amount||0),0);
@@ -1667,10 +1730,10 @@ function sendWhatsAppStatement() {
   
   const from = document.getElementById('stFrom').value;
   const to = document.getElementById('stTo').value;
-  const tx = db.tx.filter(t => t.memberId === mid && (!from || t.date >= from) && (!to || t.date <= to)).sort((a,b) => a.date.localeCompare(b.date));
+  const tx = db.tx.filter(t => !t._deleted && t.memberId === mid && (!from || t.date >= from) && (!to || t.date <= to)).sort((a,b) => a.date.localeCompare(b.date));
   
-  const sav = db.savings.filter(s => s.memberId === mid && s.status==='active');
-  const loan = db.loans.filter(l => l.memberId === mid && l.status==='active');
+  const sav = db.savings.filter(s => !s._deleted && s.memberId === mid && s.status==='active');
+  const loan = db.loans.filter(l => !l._deleted && l.memberId === mid && l.status==='active');
   const totalSaving = sav.reduce((x,s) => x + s.total, 0);
   const totalLoanDue = loan.reduce((x,l) => x + Math.max(0, l.total - l.paid), 0);
 
